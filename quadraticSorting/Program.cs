@@ -55,6 +55,7 @@ namespace quadraticSorting
             if (!Test())
             {
                 Console.WriteLine("Тест провален!");
+                return;
             }
             Console.WriteLine("Тест пройден успешно!");
             Console.WriteLine("Введите массив натуральных чисел: ");

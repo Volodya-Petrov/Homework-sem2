@@ -25,11 +25,11 @@ namespace quadraticSorting
         {
             int[] array = { 4, 1, 6, 2, 7 };
             int[] sortedArray = { 1, 2, 4, 6, 7 };
+            Sort(array);
             if (array.Length != sortedArray.Length)
             {
                 return false;
             }
-            Sort(array);
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i] != sortedArray[i])
@@ -42,8 +42,7 @@ namespace quadraticSorting
         
         static int[] readArray()
         {
-            var str = Console.ReadLine();
-            var numbers = str.Split(' ');
+            var numbers = Console.ReadLine().Split(' ');
             var array = new int[numbers.Length];
             for (int i = 0; i < numbers.Length; i++)
             {

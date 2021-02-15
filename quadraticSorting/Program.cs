@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace quadraticSorting
+namespace QuadraticSorting
 {
     class Program
     {
@@ -21,6 +21,7 @@ namespace quadraticSorting
                 array[min] = helperSwap;
             }
         }
+
         static bool Test()
         {
             int[] array = { 4, 1, 6, 2, 7 };
@@ -40,7 +41,7 @@ namespace quadraticSorting
             return true;
         }
         
-        static int[] readArray()
+        static int[] ReadArray()
         {
             var numbers = Console.ReadLine().Split(' ');
             var array = new int[numbers.Length];
@@ -50,6 +51,7 @@ namespace quadraticSorting
             }
             return array;
         }
+
         static void Main(string[] args)
         {   
             if (!Test())
@@ -59,7 +61,7 @@ namespace quadraticSorting
             }
             Console.WriteLine("Тест пройден успешно!");
             Console.WriteLine("Введите массив натуральных чисел: ");
-            var array = readArray();
+            var array = ReadArray();
             Sort(array);
             Console.WriteLine("Отсортированный массив:");
             for (int i = 0; i < array.Length; i++)

@@ -53,7 +53,28 @@ namespace BWTmethod
             return arrayOfNumeration;
         }
 
-        static string ReverseBWT(string str)
+        public static string ReverseBWT(string str)
+        {
+            var numerationArray = GetNumeration(str);
+            string resultStr = "$";
+            int currentIndex = 0;
+            while (currentIndex != Array.IndexOf(numerationArray, 0))
+            {
+                resultStr += str[currentIndex];
+                currentIndex = numerationArray[currentIndex];
+            }
+            var charArrayOfString = resultStr.ToCharArray();
+            Array.Reverse(charArrayOfString);
+            return new string(charArrayOfString);
+        }
+
+        public static bool TestForReverseBWT()
+        {
+            string testString = "ркккрр$ааа";
+            return "каркаркар$" == ReverseBWT(testString);
+        }
+
+        public static string BWTransformation(string str)
         {
             return "";
         }

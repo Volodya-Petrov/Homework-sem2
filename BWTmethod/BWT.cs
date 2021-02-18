@@ -30,7 +30,7 @@ namespace BWTmethod
 
         static int[] GetCountOfSymbols(string str)
         {
-            char[] alphabetOfString = GetAlphabetArray(str);
+            var alphabetOfString = GetAlphabetArray(str);
             var countOfSymbols = new int[alphabetOfString.Length];
             for (int i = 0; i < alphabetOfString.Length; i++)
             {

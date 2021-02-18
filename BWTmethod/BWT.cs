@@ -4,7 +4,13 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace BWTmethod
-{
+{   
+    struct BWTransformedString
+    {
+        public string transformedString;
+        public int lastSymbolPosition;
+    }
+
     class BWT
     {   
         static char[] GetAlphabetArray(string str)
@@ -53,29 +59,38 @@ namespace BWTmethod
             return arrayOfNumeration;
         }
 
-        public static string ReverseBWT(string str)
+        public static string ReverseBWT(BWTransformedString transformedString)
         {
-            var numerationArray = GetNumeration(str);
+            var numerationArray = GetNumeration(transformedString.transformedString);
             string resultStr = "";
-            int currentIndex = 0;
-            while (currentIndex != Array.IndexOf(numerationArray, 0))
+            int currentIndex = transformedString.lastSymbolPosition;
+            for (int i = 0; i < transformedString.transformedString.Length; i++)
             {
-                resultStr += str[currentIndex];
+                resultStr += transformedString.transformedString[currentIndex];
                 currentIndex = numerationArray[currentIndex];
             }
-            resultStr += str[Array.IndexOf(numerationArray, 0)];
             var charArrayOfString = resultStr.ToCharArray();
             Array.Reverse(charArrayOfString);
             return new string(charArrayOfString);
         }
 
-        public static bool TestForReverseBWT()
+        public static bool TestForBWT()
         {
-            string testString = "ркккрр$ааа";
-            return "каркаркар$" == ReverseBWT(testString);
+            bool result = true;
+            string testString = "каркаркар";
+            BWTransformedString transformedString = BWTransformation(testString);
+            if (transformedString.transformedString != "кккрррааа")
+            {
+                result = false;
+            }
+            if (testString != ReverseBWT(transformedString))
+            {
+                result = false;
+            }
+            return result;
         }
 
-        public static string BWTransformation(string str)
+        public static BWTransformedString BWTransformation(string str)
         {
             var suffixArray = new int[str.Length];
             for (int i = 0; i < str.Length; i++)
@@ -110,7 +125,10 @@ namespace BWTmethod
                     resultString += str[suffixArray[i] - 1];
                 }
             }
-            return resultString;
+            BWTransformedString transformedString;
+            transformedString.transformedString = resultString;
+            transformedString.lastSymbolPosition = Array.IndexOf(suffixArray, 0);
+            return transformedString;
         }
     }
 }

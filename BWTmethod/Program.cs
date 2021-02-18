@@ -6,13 +6,17 @@ namespace BWTmethod
     {
         static void Main(string[] args)
         {   
-            /*if (!BWT.TestForReverseBWT())
+            if (!BWT.TestForBWT())
             {
                 Console.WriteLine("Тесты провалены");
-            }*/
+                return;
+            }
             Console.WriteLine("Тесты успешно пройдены");
+            Console.WriteLine("Введите строку:");
             string str = Console.ReadLine();
-            Console.WriteLine(BWT.BWTransformation(str));
+            Console.Write("Преобразованная строка: ");
+            Console.WriteLine(BWT.BWTransformation(str).transformedString);
+            Console.Write("Результат обратного BWT: ");
             Console.WriteLine(BWT.ReverseBWT(BWT.BWTransformation(str)));
         }
     }

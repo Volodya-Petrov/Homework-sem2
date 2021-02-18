@@ -9,8 +9,8 @@ namespace BWTmethod
     {   
         static char[] GetAlphabetArray(string str)
         {
-            var alphabetOfString = "$";
-            for (int i = 0; i < str.Length - 1; i++)
+            var alphabetOfString = "";
+            for (int i = 0; i < str.Length; i++)
             {
                 if (alphabetOfString.IndexOf(str[i]) < 0)
                 {
@@ -18,15 +18,15 @@ namespace BWTmethod
                 }
             }
             var resultArray = alphabetOfString.ToCharArray();
-            Array.Sort(resultArray, 1, resultArray.Length - 1);
+            Array.Sort(resultArray);
             return resultArray;
         }
 
-        static int[] GetCountOfSymbols(char[] alphabetOfString, string str)
+        static int[] GetCountOfSymbols(string str)
         {
+            char[] alphabetOfString = GetAlphabetArray(str);
             var countOfSymbols = new int[alphabetOfString.Length];
-            countOfSymbols[0] = 1;
-            for (int i = 1; i < alphabetOfString.Length; i++)
+            for (int i = 0; i < alphabetOfString.Length; i++)
             {
                 countOfSymbols[i] = str.Where(x => x == alphabetOfString[i]).Count();
             }
@@ -36,7 +36,7 @@ namespace BWTmethod
         static int[] GetNumeration(string str)
         {
             var alphabetOfString = GetAlphabetArray(str);
-            var countOfSymbols = GetCountOfSymbols(alphabetOfString, str);
+            var countOfSymbols = GetCountOfSymbols(str);
             var helperArrayOfNumeration = new int[countOfSymbols.Length];
             helperArrayOfNumeration[0] = 0;
             for (int i = 1; i < countOfSymbols.Length; i++)
@@ -56,13 +56,14 @@ namespace BWTmethod
         public static string ReverseBWT(string str)
         {
             var numerationArray = GetNumeration(str);
-            string resultStr = "$";
+            string resultStr = "";
             int currentIndex = 0;
             while (currentIndex != Array.IndexOf(numerationArray, 0))
             {
                 resultStr += str[currentIndex];
                 currentIndex = numerationArray[currentIndex];
             }
+            resultStr += str[Array.IndexOf(numerationArray, 0)];
             var charArrayOfString = resultStr.ToCharArray();
             Array.Reverse(charArrayOfString);
             return new string(charArrayOfString);
@@ -76,7 +77,40 @@ namespace BWTmethod
 
         public static string BWTransformation(string str)
         {
-            return "";
+            var suffixArray = new int[str.Length];
+            for (int i = 0; i < str.Length; i++)
+            {
+                suffixArray[i] = i;
+            }
+            for (int i = 1; i < suffixArray.Length; i++)
+            {
+                for (int j = 0; j < suffixArray.Length - i; j++)
+                {
+                    int index1 = suffixArray[j];
+                    int index2 = suffixArray[j + 1];
+                    string str1 = str.Substring(index1) + str.Substring(0, index1);
+                    string str2 = str.Substring(index2) + str.Substring(0, index2);
+                    if (String.Compare(str1, str2) > 0)
+                    {
+                        int helperForSwap = suffixArray[j];
+                        suffixArray[j] = suffixArray[j + 1];
+                        suffixArray[j + 1] = helperForSwap;
+                    }
+                }
+            }
+            string resultString = "";
+            for (int i = 0; i < suffixArray.Length; i++)
+            {
+                if (suffixArray[i] == 0)
+                {
+                    resultString += str[str.Length - 1];
+                }
+                else
+                {
+                    resultString += str[suffixArray[i] - 1];
+                }
+            }
+            return resultString;
         }
     }
 }

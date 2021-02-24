@@ -11,10 +11,21 @@ namespace LzwAlgorithm
             public char symbol;
             public int code;
             public Hashtable hashtable;
+
+            public Node()
+            {
+                this.hashtable = new Hashtable();
+            }
+
+            public Node(char symbol, int code) : this()
+            {
+                this.symbol = symbol;
+                this.code = code;
+            }
         }
 
-        private Node root;
         private int maxCode;
+        private Node root = new Node();
 
         public bool Contains(string str)
         {
@@ -22,11 +33,11 @@ namespace LzwAlgorithm
             Node currentNode = root;
             while (index < str.Length)
             {
-                if (!root.hashtable.Contains(str[index]))
+                if (!currentNode.hashtable.Contains(str[index]))
                 {
                     return false;
                 }
-                currentNode = (Node)root.hashtable[str[index]];
+                currentNode = (Node)currentNode.hashtable[str[index]];
                 index++;
             }
             return true;
@@ -36,12 +47,24 @@ namespace LzwAlgorithm
         {
             int index = 0;
             var currentNode = root;
-            while (index != str[str.Length - 1])
+            while (index != str.Length - 1)
             {
-                currentNode = (Node)root.hashtable[str[index]];
+                currentNode = (Node)currentNode.hashtable[str[index]];
                 index++;
             }
-            currentNode.hashtable.Add(str[index], new Node { symbol = str[index], code = maxCode++ });
+            currentNode.hashtable.Add(str[index], new Node(str[index], maxCode++));
+        }
+
+        public int GetCode(string str)
+        {
+            int index = 0;
+            var currentNode = root;
+            while (index < str.Length)
+            {
+                currentNode = (Node)currentNode.hashtable[str[index]];
+                index++;
+            }
+            return currentNode.code;
         }
     }
 }

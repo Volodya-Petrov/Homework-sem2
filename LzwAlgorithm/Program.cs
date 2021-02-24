@@ -6,7 +6,14 @@ namespace LzwAlgorithm
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Dictionary dict = new Dictionary();
+            dict.Add("a");
+            dict.Add("b");
+            dict.Add("ab");
+            dict.Add("abc");
+            var code = dict.GetCode("ab");
+            var contains = dict.Contains("abc");
+            contains = dict.Contains("bc");
         }
     }
 }

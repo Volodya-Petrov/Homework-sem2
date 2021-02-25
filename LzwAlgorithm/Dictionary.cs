@@ -66,5 +66,10 @@ namespace LzwAlgorithm
             }
             return currentNode.code;
         }
+
+        public int GetElementsCount()
+        {
+            return this.maxCode;
+        }
     }
 }

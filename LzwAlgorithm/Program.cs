@@ -6,14 +6,17 @@ namespace LzwAlgorithm
     {
         static void Main(string[] args)
         {
-            Dictionary dict = new Dictionary();
-            dict.Add("a");
-            dict.Add("b");
-            dict.Add("ab");
-            dict.Add("abc");
-            var code = dict.GetCode("ab");
-            var contains = dict.Contains("abc");
-            contains = dict.Contains("bc");
+            var test = Console.ReadLine();
+            var str = LZW.Lzw(test);
+            var newStr = LZW.reverseLzw(str);
+            if (newStr == test)
+            {
+                Console.WriteLine("%$##$, чотко");
+            }
+            else
+            {
+                Console.WriteLine("Переделывай пацан");
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 
 namespace LzwAlgorithm
@@ -56,59 +57,49 @@ namespace LzwAlgorithm
             }
         }
 
-        /*private static Hashtable InitHashtable(string str)
+        private static Hashtable InitHashtable()
         {
-            int startIndex = 0;
-            int code = 0;
-            while (str[startIndex] != ' ')
-            {
-                startIndex++;
-            }
-            int sizeOfAlphabet = int.Parse(str.Substring(0, startIndex));
             var hashtable = new Hashtable();
-            for (int i = startIndex + 1; i < startIndex + sizeOfAlphabet + 1; i++)
+            for (int i = 0; i < 256; i++)
             {
-                hashtable.Add(code++, str[i].ToString());
+                hashtable.Add(i, new byte[] { (byte)i });
             }
             return hashtable;
         }
 
-        private static int GetStartIndex(string str)
+        public static void ReverseLzw(string path)
         {
-            int startIndex = 0;
-            while (str[startIndex] != ' ')
-            {
-                startIndex++;
-            }
-            int sizeOfAlphabet = int.Parse(str.Substring(0, startIndex));
-            return startIndex + sizeOfAlphabet + 1;
-        }
-
-        public static string reverseLzw(string str)
-        {
-            var hashtable = InitHashtable(str);
+            var hashtable = InitHashtable();
             int maxCode = hashtable.Count;
-            var resultString = "";
-            int startIndex = GetStartIndex(str);
-            var array = str.Substring(startIndex, str.Length - startIndex).Split(' ');
-            var codes = new int[array.Length];
-            for (int i = 0; i < array.Length; i++)
+            using (FileStream baseFile = File.OpenRead(path))
             {
-                codes[i] = int.Parse(array[i]);
-            }
-            for (int i = 0; i < codes.Length; i++)
-            {
-                int code = codes[i];
-                string helperString = (string)hashtable[code];
-                if (i != 0)
+                path = path.Substring(0, path.Length - 7);
+                int period = baseFile.ReadByte();
+                using (FileStream decompressedFile = new FileStream(path, FileMode.OpenOrCreate))
                 {
-                    hashtable[maxCode - 1] = (string)hashtable[maxCode - 1] + helperString[0];
+                    for (int i = 1; i < baseFile.Length; i += 3)
+                    {   
+                        var codeInBytes = new byte[period + 3];
+                        for (int j = 0; j < period; j++)
+                        {
+                            codeInBytes[j] = (byte)baseFile.ReadByte();
+                        }
+                        var code = BitConverter.ToInt32(codeInBytes, 0);
+                        byte[] bytesArray = (byte[])hashtable[code];
+                        if (i != 3)
+                        {
+                            var lastAdded = (byte[])hashtable[maxCode - 1];
+                            lastAdded[lastAdded.Length - 1] = bytesArray[0];
+                            hashtable[maxCode - 1] = lastAdded;
+                        }
+                        bytesArray = (byte[])hashtable[code];
+                        var copyOfBytesArray = new byte[bytesArray.Length + 1];
+                        Array.Copy(bytesArray, copyOfBytesArray, bytesArray.Length);
+                        hashtable.Add(maxCode++, copyOfBytesArray);
+                        decompressedFile.Write(bytesArray);
+                    }
                 }
-                helperString = (string)hashtable[code];
-                hashtable.Add(maxCode++, helperString);
-                resultString += helperString;
             }
-            return resultString;
-        }*/
+        }
     }
 }

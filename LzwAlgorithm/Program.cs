@@ -6,7 +6,7 @@ namespace LzwAlgorithm
     {
         static void Main(string[] args)
         {
-            LZW.Lzw(Console.ReadLine());
+            LZW.ReverseLzw(Console.ReadLine());
             Console.WriteLine("Все ок братан");
         }
     }

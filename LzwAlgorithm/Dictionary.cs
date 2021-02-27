@@ -1,75 +1,113 @@
 ﻿using System;
 using System.Collections;
-using System.Text;
 
 namespace LzwAlgorithm
 {
     class Dictionary
     {   
-        private class Node
+        public Dictionary()
         {
-            public char symbol;
-            public int code;
-            public Hashtable hashtable;
-
-            public Node()
+            for (int i = 0; i < 256; i++)
             {
-                this.hashtable = new Hashtable();
-            }
-
-            public Node(char symbol, int code) : this()
-            {
-                this.symbol = symbol;
-                this.code = code;
+                var newByte = new byte[] { (byte)i };
+                Console.WriteLine(i);
+                Add(newByte);
+                
             }
         }
 
-        private int maxCode;
+        private class Node
+        {
+            private int code;
+            private Hashtable hashtable;
+            
+            public int Code
+            {
+                get
+                {
+                    return code;
+                }
+
+                set
+                {
+                    code = value;
+                }
+            }
+
+            public Node()
+            {
+                hashtable = new Hashtable();
+            }
+
+            public Node(int code) : this()
+            {
+                this.code = code;
+            }
+
+            public void AddChild(byte child, int childsCode)
+            {
+                hashtable.Add(child, new Node(childsCode));
+            }
+
+            public bool ContainsChild(byte child)
+            {
+                return hashtable.Contains(child);
+            }
+
+            public Node GetChild(byte child)
+            {
+                return (Node)hashtable[child];
+            }
+        }
+
+        private int count;
         private Node root = new Node();
 
-        public bool Contains(string str)
+        public int Count
+        {
+            get
+            {
+                return count;
+            }
+        }
+        public bool Contains(byte[] bytes)
         {
             int index = 0;
             Node currentNode = root;
-            while (index < str.Length)
+            while (index < bytes.Length)
             {
-                if (!currentNode.hashtable.Contains(str[index]))
+                if (!currentNode.ContainsChild(bytes[index]))
                 {
                     return false;
                 }
-                currentNode = (Node)currentNode.hashtable[str[index]];
+                currentNode = currentNode.GetChild(bytes[index]);
                 index++;
             }
             return true;
         }
 
-        public void Add(string str)
+        public void Add(byte[] bytes)
         {
             int index = 0;
             var currentNode = root;
-            while (index != str.Length - 1)
+            while (index != bytes.Length - 1)
             {
-                currentNode = (Node)currentNode.hashtable[str[index]];
+                currentNode = currentNode.GetChild(bytes[index]);
                 index++;
             }
-            currentNode.hashtable.Add(str[index], new Node(str[index], maxCode++));
+            currentNode.AddChild(bytes[index], count++);
         }
 
-        public int GetCode(string str)
+        public int GetCode(byte[] bytes)
         {
             int index = 0;
             var currentNode = root;
-            while (index < str.Length)
+            while (index < bytes.Length)
             {
-                currentNode = (Node)currentNode.hashtable[str[index]];
+                currentNode = currentNode.GetChild(bytes[index]);
                 index++;
             }
-            return currentNode.code;
-        }
-
-        public int GetElementsCount()
-        {
-            return this.maxCode;
+            return currentNode.Code;
         }
     }
 }

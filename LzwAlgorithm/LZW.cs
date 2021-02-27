@@ -1,41 +1,62 @@
 ﻿using System;
-using System.Collections;
-using System.Text;
+using System.Collections.Generic;
+using System.IO;
 
 namespace LzwAlgorithm
 {
     class LZW
-    {
-        public static string Lzw(string str)
+    {   
+        private static int GetCountOfSignificantBytes(byte[] byteArray)
         {
-            var dict = new Dictionary();
-            var resultString = "";
-            for (int i = 0; i < str.Length; i++)
+            for (int i = byteArray.Length - 1; i >= 0; i--)
             {
-                if (!dict.Contains(str[i].ToString()))
+                if (byteArray[i] != 0)
                 {
-                    dict.Add(str[i].ToString());
-                    resultString += str[i].ToString();
+                    return i + 1;
                 }
             }
-            resultString = dict.GetElementsCount().ToString() + " " + resultString;
-            var currentString = "";
-            for (int i = 0; i < str.Length; i++)
-            {
-                currentString += str[i];
-                if (!dict.Contains(currentString))
-                {
-                    var substring = currentString.Substring(0, currentString.Length - 1);
-                    resultString += dict.GetCode(substring).ToString() + " ";
-                    dict.Add(currentString);
-                    currentString = currentString[currentString.Length - 1].ToString();
-                }
-            }
-            resultString += dict.GetCode(currentString).ToString();
-            return resultString;
+            return 1;
         }
 
-        private static Hashtable InitHashtable(string str)
+        public static void Lzw(string path)
+        {
+            var dict = new Dictionary();
+            var output = new List<int>();
+            var currentBytes = new List<byte>();
+            using (FileStream baseFile = File.OpenRead(path))
+            {
+                for (int i = 0; i < baseFile.Length; i++)
+                {
+                    currentBytes.Add((byte)baseFile.ReadByte());
+                    var currentBytesInArray = currentBytes.ToArray();
+                    if (!dict.Contains(currentBytesInArray))
+                    {
+                        var subCurrentBytes = new byte[currentBytesInArray.Length - 1];
+                        Array.Copy(currentBytesInArray, subCurrentBytes, currentBytesInArray.Length - 1);
+                        output.Add(dict.GetCode(subCurrentBytes));
+                        dict.Add(currentBytesInArray);
+                        var helperList = new List<byte>();
+                        helperList.Add(currentBytesInArray[currentBytesInArray.Length - 1]);
+                        currentBytes = helperList;
+                    }
+                }
+                output.Add(dict.GetCode(currentBytes.ToArray()));
+            }
+            path += ".zipped";
+            var bytesForMaxCode = BitConverter.GetBytes(dict.Count);
+            var countOfBytes = GetCountOfSignificantBytes(bytesForMaxCode);
+            using (FileStream zippedFile = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                zippedFile.WriteByte((byte)countOfBytes);
+                for (int i = 0; i < output.Count; i++)
+                {
+                    var helpArray = BitConverter.GetBytes(output[i]);
+                    zippedFile.Write(helpArray, 0, countOfBytes);
+                }
+            }
+        }
+
+        /*private static Hashtable InitHashtable(string str)
         {
             int startIndex = 0;
             int code = 0;
@@ -88,6 +109,6 @@ namespace LzwAlgorithm
                 resultString += helperString;
             }
             return resultString;
-        }
+        }*/
     }
 }

@@ -86,7 +86,7 @@ namespace LzwAlgorithm
                         }
                         var code = BitConverter.ToInt32(codeInBytes, 0);
                         byte[] bytesArray = (byte[])hashtable[code];
-                        if (i != 3)
+                        if (i != 1)
                         {
                             var lastAdded = (byte[])hashtable[maxCode - 1];
                             lastAdded[lastAdded.Length - 1] = bytesArray[0];
@@ -97,9 +97,9 @@ namespace LzwAlgorithm
                         Array.Copy(bytesArray, copyOfBytesArray, bytesArray.Length);
                         hashtable.Add(maxCode++, copyOfBytesArray);
                         decompressedFile.Write(bytesArray);
-                    }
+                    }   
                 }
             }
-        }
+        }  
     }
 }

@@ -77,7 +77,7 @@ namespace LzwAlgorithm
                 int period = baseFile.ReadByte();
                 using (FileStream decompressedFile = new FileStream(path, FileMode.OpenOrCreate))
                 {
-                    for (int i = 1; i < baseFile.Length; i += 3)
+                    for (int i = 1; i < baseFile.Length; i += period)
                     {   
                         var codeInBytes = new byte[period + 3];
                         for (int j = 0; j < period; j++)

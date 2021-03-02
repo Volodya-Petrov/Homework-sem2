@@ -2,7 +2,10 @@
 using System.Collections;
 
 namespace LzwAlgorithm
-{
+{   
+    /// <summary>
+    /// генерит и хранит коды байтовых массивов
+    /// </summary>
     class Dictionary
     {   
         public Dictionary()
@@ -10,9 +13,7 @@ namespace LzwAlgorithm
             for (int i = 0; i < 256; i++)
             {
                 var newByte = new byte[] { (byte)i };
-                Console.WriteLine(i);
                 Add(newByte);
-                
             }
         }
 
@@ -23,53 +24,41 @@ namespace LzwAlgorithm
             
             public int Code
             {
-                get
-                {
-                    return code;
-                }
+                get => code;
 
-                set
-                {
-                    code = value;
-                }
+                set => code = value;
             }
 
             public Node()
-            {
-                hashtable = new Hashtable();
-            }
+                => hashtable = new Hashtable();
 
             public Node(int code) : this()
-            {
-                this.code = code;
-            }
+                => this.code = code;
 
             public void AddChild(byte child, int childsCode)
-            {
-                hashtable.Add(child, new Node(childsCode));
-            }
+                => hashtable.Add(child, new Node(childsCode));
 
             public bool ContainsChild(byte child)
-            {
-                return hashtable.Contains(child);
-            }
+                => hashtable.Contains(child);
 
             public Node GetChild(byte child)
-            {
-                return (Node)hashtable[child];
-            }
+                => (Node)hashtable[child];
         }
 
         private int count;
         private Node root = new Node();
 
+        /// <summary>
+        /// выдает кол-во элементов в словаре
+        /// </summary>
         public int Count
         {
-            get
-            {
-                return count;
-            }
+            get => count;
         }
+
+        /// <summary>
+        /// проверяет содержит ли словарь данный байтовый ключ
+        /// </summary>
         public bool Contains(byte[] bytes)
         {
             int index = 0;
@@ -86,6 +75,10 @@ namespace LzwAlgorithm
             return true;
         }
 
+        /// <summary>
+        /// добавляет ключ в словарь
+        /// </summary>
+        /// <param name="bytes">байтовый ключ</param>
         public void Add(byte[] bytes)
         {
             int index = 0;
@@ -98,6 +91,10 @@ namespace LzwAlgorithm
             currentNode.AddChild(bytes[index], count++);
         }
 
+        /// <summary>
+        /// возвращает код по ключу
+        /// </summary>
+        /// <param name="bytes">ключ</param>
         public int GetCode(byte[] bytes)
         {
             int index = 0;

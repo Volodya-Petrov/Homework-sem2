@@ -4,8 +4,11 @@ using System.Collections;
 using System.IO;
 
 namespace LzwAlgorithm
-{
-    class LZW
+{   
+    /// <summary>
+    /// класс для сжатия файлов
+    /// </summary>
+    public class LZW
     {   
         private static int GetCountOfSignificantBytes(byte[] byteArray)
         {
@@ -19,6 +22,10 @@ namespace LzwAlgorithm
             return 1;
         }
 
+        /// <summary>
+        /// сжимает файл
+        /// </summary>
+        /// <param name="path">путь до файла, который надо сжать</param>
         public static void Lzw(string path)
         {
             var dict = new Dictionary();
@@ -46,7 +53,7 @@ namespace LzwAlgorithm
             path += ".zipped";
             var bytesForMaxCode = BitConverter.GetBytes(dict.Count);
             var countOfBytes = GetCountOfSignificantBytes(bytesForMaxCode);
-            using (FileStream zippedFile = new FileStream(path, FileMode.OpenOrCreate))
+            using (FileStream zippedFile = new FileStream(path, FileMode.CreateNew))
             {
                 zippedFile.WriteByte((byte)countOfBytes);
                 for (int i = 0; i < output.Count; i++)
@@ -67,6 +74,10 @@ namespace LzwAlgorithm
             return hashtable;
         }
 
+        /// <summary>
+        /// востанавливает исходный файл, который был сжат
+        /// </summary>
+        /// <param name="path">путь до файла</param>
         public static void ReverseLzw(string path)
         {
             var hashtable = InitHashtable();
@@ -75,7 +86,7 @@ namespace LzwAlgorithm
             {
                 path = path.Substring(0, path.Length - 7);
                 int period = baseFile.ReadByte();
-                using (FileStream decompressedFile = new FileStream(path, FileMode.OpenOrCreate))
+                using (FileStream decompressedFile = new FileStream(path, FileMode.CreateNew))
                 {
                     for (int i = 1; i < baseFile.Length; i += period)
                     {   

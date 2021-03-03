@@ -12,21 +12,15 @@ namespace TestForLzw
             using FileStream file2 = File.OpenRead(path2);
             if (file1.Length != file2.Length)
             {
-                file1.Close();
-                file2.Close();
                 return false;
             }
             for (int i = 0; i < file1.Length; i++)
             {
                 if (file1.ReadByte() != file2.ReadByte())
                 {
-                    file1.Close();
-                    file2.Close();
                     return false;
                 }
             }
-            file1.Close();
-            file2.Close();
             return true;
         }
 
@@ -48,7 +42,7 @@ namespace TestForLzw
             Assert.IsTrue(areEqual);
         }
 
-        [TestMethod]
+       // [TestMethod]
         public void TestCorrectCompressDecompressExe()
         {
             // setup

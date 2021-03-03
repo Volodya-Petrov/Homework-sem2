@@ -10,30 +10,24 @@ namespace LzwAlgorithm
     {   
         public Dictionary()
         {
+            currentNode = root;
             for (int i = 0; i < 256; i++)
             {
-                var newByte = new byte[] { (byte)i };
-                Add(newByte);
+                Add((byte)i);
             }
         }
 
         private class Node
         {
-            private int code;
             private Hashtable hashtable;
             
-            public int Code
-            {
-                get => code;
-
-                set => code = value;
-            }
+            public int Code { get; set; }
 
             public Node()
                 => hashtable = new Hashtable();
 
             public Node(int code) : this()
-                => this.code = code;
+                => Code = code;
 
             public void AddChild(byte child, int childsCode)
                 => hashtable.Add(child, new Node(childsCode));
@@ -47,64 +41,35 @@ namespace LzwAlgorithm
 
         private int count;
         private Node root = new Node();
+        private Node currentNode;
 
         /// <summary>
         /// выдает кол-во элементов в словаре
         /// </summary>
-        public int Count
-        {
-            get => count;
-        }
-
-        /// <summary>
-        /// проверяет содержит ли словарь данный байтовый ключ
-        /// </summary>
-        public bool Contains(byte[] bytes)
-        {
-            int index = 0;
-            Node currentNode = root;
-            while (index < bytes.Length)
-            {
-                if (!currentNode.ContainsChild(bytes[index]))
-                {
-                    return false;
-                }
-                currentNode = currentNode.GetChild(bytes[index]);
-                index++;
-            }
-            return true;
-        }
+        public int Count => count;
 
         /// <summary>
         /// добавляет ключ в словарь
         /// </summary>
-        /// <param name="bytes">байтовый ключ</param>
-        public void Add(byte[] bytes)
+        /// <param name="byteForAdd">байтовый ключ</param>
+        public int Add(byte byteForAdd)
         {
-            int index = 0;
-            var currentNode = root;
-            while (index != bytes.Length - 1)
+            if (currentNode.ContainsChild(byteForAdd))
             {
-                currentNode = currentNode.GetChild(bytes[index]);
-                index++;
+                currentNode = currentNode.GetChild(byteForAdd);
+                return -1;
             }
-            currentNode.AddChild(bytes[index], count++);
+            currentNode.AddChild(byteForAdd, count);
+            count++;
+            var codeForReturn = currentNode.Code;
+            currentNode = root;
+            return codeForReturn;
         }
 
         /// <summary>
         /// возвращает код по ключу
         /// </summary>
         /// <param name="bytes">ключ</param>
-        public int GetCode(byte[] bytes)
-        {
-            int index = 0;
-            var currentNode = root;
-            while (index < bytes.Length)
-            {
-                currentNode = currentNode.GetChild(bytes[index]);
-                index++;
-            }
-            return currentNode.Code;
-        }
+        public int GetCode() => currentNode.Code;
     }
 }

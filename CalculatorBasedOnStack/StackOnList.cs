@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CalculatorBasedOnStack
 {
-    class StackOnList
+    class StackOnList : IStack
     {
         public StackOnList() => stack = new List<double>();
         private List<double> stack;

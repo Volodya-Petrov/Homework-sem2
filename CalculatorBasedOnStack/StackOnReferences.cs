@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CalculatorBasedOnStack
 {
-    class StackOnReferences
+    class StackOnReferences : IStack
     {
         private class StackElement
         {

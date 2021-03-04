@@ -8,7 +8,7 @@ namespace LzwAlgorithm
     /// <summary>
     /// класс для сжатия файлов
     /// </summary>
-    public class LZW
+    public static class LZW
     {   
         private static int GetCountOfSignificantBytes(byte[] byteArray)
         {
@@ -45,13 +45,14 @@ namespace LzwAlgorithm
             path += ".zipped";
             var bytesForMaxCode = BitConverter.GetBytes(dict.Count);
             var countOfBytes = GetCountOfSignificantBytes(bytesForMaxCode);
-            using FileStream zippedFile = new FileStream(path, FileMode.CreateNew);
+            using var zippedFile = new FileStream(path, FileMode.CreateNew);
             zippedFile.WriteByte((byte)countOfBytes);
             for (int i = 0; i < output.Count; i++)
             {
                 var helpArray = BitConverter.GetBytes(output[i]);
                 zippedFile.Write(helpArray, 0, countOfBytes);
             }
+            // конечно сборщик их закроет, но мне кидает ошибку в обратном лзв, что есть потоки юзающие эти файлы
             zippedFile.Close();
             baseFile.Close();
         }
@@ -69,10 +70,9 @@ namespace LzwAlgorithm
         private static void AddLastSymblomToDictionary(int code, Hashtable hashtable)
         {
             byte[] bytesArray = (byte[])hashtable[code];
-            int maxCode = hashtable.Count;
+            var maxCode = hashtable.Count;
             var lastAdded = (byte[])hashtable[maxCode - 1];
             lastAdded[lastAdded.Length - 1] = bytesArray[0];
-            hashtable[maxCode - 1] = lastAdded;
         }
 
         /// <summary>
@@ -83,10 +83,10 @@ namespace LzwAlgorithm
         {
             var hashtable = InitHashtable();
             int maxCode = hashtable.Count;
-            using FileStream baseFile = File.OpenRead(path);
+            using var baseFile = File.OpenRead(path);
             path = path.Substring(0, path.Length - 7);
             int period = baseFile.ReadByte();
-            using FileStream decompressedFile = new FileStream(path, FileMode.CreateNew);
+            using var decompressedFile = new FileStream(path, FileMode.CreateNew);
             for (int i = 1; i < baseFile.Length; i += period)
             {   
                 // BitConventer.ToInt32 не будет работать с массивом байт, длина которого = 3
@@ -103,7 +103,8 @@ namespace LzwAlgorithm
                 var bytesArray = (byte[])hashtable[code];
                 var copyOfBytesArray = new byte[bytesArray.Length + 1];
                 Array.Copy(bytesArray, copyOfBytesArray, bytesArray.Length);
-                hashtable.Add(maxCode++, copyOfBytesArray);
+                hashtable.Add(maxCode, copyOfBytesArray);
+                maxCode++;
                 decompressedFile.Write(bytesArray);
             }
             baseFile.Close();

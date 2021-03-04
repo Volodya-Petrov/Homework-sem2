@@ -42,7 +42,7 @@ namespace TestForLzw
             Assert.IsTrue(areEqual);
         }
 
-       // [TestMethod]
+        [TestMethod]
         public void TestCorrectCompressDecompressExe()
         {
             // setup

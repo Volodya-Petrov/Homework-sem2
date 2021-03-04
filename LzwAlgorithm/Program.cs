@@ -17,7 +17,7 @@ namespace LzwAlgorithm
                 var basedFile = new FileInfo(path);
                 var compressedFile = new FileInfo(path + ".zipped");
                 Console.WriteLine("Файл сжат");
-                Console.WriteLine("Коэффициент сжатия: {0}", (double)basedFile.Length / compressedFile.Length);
+                Console.WriteLine($"Коэффициент сжатия: {(double)basedFile.Length / compressedFile.Length}");
             }
             else if (key == "-u")
             {

@@ -7,21 +7,17 @@ namespace LzwAlgorithm
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите путь к файлу:");
-            var path = Console.ReadLine();
-            Console.WriteLine("Введите ключ '-c', если хотите сжать файл. Введите ключ '-u', если хотите разжать файл");
-            var key = Console.ReadLine();
-            if (key == "-c")
+            if (args[1] == "-c")
             {
-                LZW.Lzw(path);
-                var basedFile = new FileInfo(path);
-                var compressedFile = new FileInfo(path + ".zipped");
+                LZW.Lzw(args[0]);
+                var basedFile = new FileInfo(args[0]);
+                var compressedFile = new FileInfo(args[0] + ".zipped");
                 Console.WriteLine("Файл сжат");
                 Console.WriteLine($"Коэффициент сжатия: {(double)basedFile.Length / compressedFile.Length}");
             }
-            else if (key == "-u")
+            else if (args[1] == "-u")
             {
-                LZW.ReverseLzw(path);
+                LZW.ReverseLzw(args[0]);
                 Console.WriteLine("Файл разжат");
             }
             else

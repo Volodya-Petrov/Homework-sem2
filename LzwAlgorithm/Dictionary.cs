@@ -48,11 +48,11 @@ namespace LzwAlgorithm
         /// </summary>
         public int Count => count;
 
-       /// <summary>
-       ///  добавляет ключ в словарь
-       /// </summary>
-       /// <param name="byteForAdd">байтовый ключ</param>
-       /// <returns>возращает -1, если ключ есть уже в словаре, код предыдущего байта, если его нет</returns>
+        /// <summary>
+        ///  добавляет ключ в словарь
+        /// </summary>
+        /// <param name="byteForAdd">байтовый ключ</param>
+        /// <returns>возращает -1, если ключ есть уже в словаре, код предыдущего байта, если его нет</returns>
         public int Add(byte byteForAdd)
         {
             if (currentNode.ContainsChild(byteForAdd))

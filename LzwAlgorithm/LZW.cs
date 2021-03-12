@@ -30,7 +30,7 @@ namespace LzwAlgorithm
         {
             var dict = new Dictionary();
             var output = new List<int>();
-            FileStream baseFile = File.OpenRead(path);
+            using var baseFile = File.OpenRead(path);
             for (int i = 0; i < baseFile.Length; i++)
             {
                 var currentByte = (byte)baseFile.ReadByte();
@@ -67,9 +67,9 @@ namespace LzwAlgorithm
             return hashtable;
         }
 
-        private static void AddLastSymblomToDictionary(int code, Hashtable hashtable)
+        private static void AddLastSymbolToDictionary(int code, Hashtable hashtable)
         {
-            byte[] bytesArray = (byte[])hashtable[code];
+            var bytesArray = (byte[])hashtable[code];
             var maxCode = hashtable.Count;
             var lastAdded = (byte[])hashtable[maxCode - 1];
             lastAdded[lastAdded.Length - 1] = bytesArray[0];
@@ -90,7 +90,7 @@ namespace LzwAlgorithm
             for (int i = 1; i < baseFile.Length; i += period)
             {   
                 // BitConventer.ToInt32 не будет работать с массивом байт, длина которого = 3
-                var codeInBytes = new byte[period + 3];
+                var codeInBytes = new byte[4];
                 for (int j = 0; j < period; j++)
                 {
                     codeInBytes[j] = (byte)baseFile.ReadByte();
@@ -98,7 +98,7 @@ namespace LzwAlgorithm
                 var code = BitConverter.ToInt32(codeInBytes, 0);
                 if (i != 1)
                 {
-                    AddLastSymblomToDictionary(code, hashtable);
+                    AddLastSymbolToDictionary(code, hashtable);
                 }
                 var bytesArray = (byte[])hashtable[code];
                 var copyOfBytesArray = new byte[bytesArray.Length + 1];

@@ -5,7 +5,7 @@ namespace CalculatorBasedOnStack
     /// <summary>
     /// Структура данных по типу first in last out
     /// </summary>
-    class StackOnReferences : IStack
+    public class StackOnReferences : IStack
     {
         private class StackElement
         {

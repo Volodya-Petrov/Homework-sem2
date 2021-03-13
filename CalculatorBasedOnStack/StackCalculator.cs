@@ -5,7 +5,7 @@ namespace CalculatorBasedOnStack
     /// <summary>
     /// калькулятор постфиксной формы
     /// </summary>
-    static class StackCalculator
+    public static class StackCalculator
     {   
         /// <summary>
         /// считает постфиксную форму записи
@@ -43,13 +43,15 @@ namespace CalculatorBasedOnStack
                             }
                             stack.Push(number2 / number1);
                             break;
+                        default:
+                            throw new ArgumentException("Некорректная постфиксная форма");
                     }
                 }
             }
             var результат = stack.Pop();
             if (!stack.IsEmpty())
             {
-                throw new InvalidProgramException("Некорректный ввод данных");
+                throw new ArgumentException("Некорректный ввод данных");
             }
             return результат;
         }

@@ -6,7 +6,7 @@ namespace CalculatorBasedOnStack
     /// <summary>
     /// структура данных first in last out
     /// </summary>
-    class StackOnList : IStack
+    public class StackOnList : IStack
     {
         public StackOnList() => stack = new List<double>();
         private List<double> stack;

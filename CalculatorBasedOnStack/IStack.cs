@@ -4,7 +4,7 @@ namespace CalculatorBasedOnStack
     /// <summary>
     ///  интерфейс структуры данных типа "first in last out"
     /// </summary>
-    interface IStack
+    public interface IStack
     {
         /// <summary>
         /// снимает элемент со стека

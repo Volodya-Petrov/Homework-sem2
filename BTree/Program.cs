@@ -11,6 +11,13 @@ namespace BTree
             dict.Insert("a", "flow");
             dict.Insert("c", "ok");
             dict.Insert("d", "jest");
+            dict.Insert("e", "grau");
+            dict.Insert("f", "pay");
+            bool check = dict.KeyExist("d");
+            check = dict.KeyExist("e");
+            var str = dict.GetValue("d");
+            dict.ChangeValue("d", "veryJest");
+            str = dict.GetValue("d");
         }
     }
 }

@@ -50,6 +50,61 @@ namespace BTree
             public Node[] Children { get; set; }
         }
 
+        public bool KeyExist(string key)
+        {
+            var currentNode = root;
+            int indexForInsert;
+            while (!currentNode.Leaf)
+            {
+                indexForInsert = FindIndexForInsert(currentNode, key);
+                if (currentNode.Keys[indexForInsert] == key)
+                {
+                    return true;
+                }
+                currentNode = currentNode.Children[indexForInsert];
+            }
+            indexForInsert = FindIndexForInsert(currentNode, key);
+            return key == currentNode.Keys[indexForInsert];
+        }
+
+        public string GetValue(string key)
+        {
+            var currentNode = root;
+            int indexForInsert;
+            while (!currentNode.Leaf)
+            {
+                indexForInsert = FindIndexForInsert(currentNode, key);
+                if (currentNode.Keys[indexForInsert] == key)
+                {
+                    return currentNode.Values[indexForInsert];
+                }
+                currentNode = currentNode.Children[indexForInsert];
+            }
+            indexForInsert = FindIndexForInsert(currentNode, key);
+            return key == currentNode.Keys[indexForInsert] ? currentNode.Values[indexForInsert] : null;
+        }
+
+        public void ChangeValue(string key, string newValue)
+        {
+            var currentNode = root;
+            int indexForInsert;
+            while (!currentNode.Leaf)
+            {
+                indexForInsert = FindIndexForInsert(currentNode, key);
+                if (currentNode.Keys[indexForInsert] == key)
+                {
+                    currentNode.Values[indexForInsert] = newValue;
+                    return;
+                }
+                currentNode = currentNode.Children[indexForInsert];
+            }
+            indexForInsert = FindIndexForInsert(currentNode, key);
+            if (currentNode.Keys[indexForInsert] == key)
+            {
+                currentNode.Values[indexForInsert] = newValue;
+            }
+        }
+
         public void Insert(string key, string value)
         {
             var currentNode = FindNodeForInsert(root, key);

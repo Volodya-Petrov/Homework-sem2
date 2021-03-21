@@ -18,6 +18,8 @@ namespace BTree
             var str = dict.GetValue("d");
             dict.ChangeValue("d", "veryJest");
             str = dict.GetValue("d");
+            dict.Insert("b", "new");
+            dict.Insert("f", "newnew");
         }
     }
 }

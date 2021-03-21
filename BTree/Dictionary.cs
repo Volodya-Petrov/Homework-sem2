@@ -130,38 +130,37 @@ namespace BTree
             }
 
         }
-
+        private Node CopyNode(Node sourceNode, int beginIndex, int endIndex)
+        {
+            var newNode = new Node(degreeOfTree);
+            newNode.Leaf = sourceNode.Leaf;
+            newNode.Parent = sourceNode.Parent;
+            for (int i = 0; i + beginIndex < endIndex; i++)
+            {
+                newNode.Keys[i] = sourceNode.Keys[beginIndex + i];
+                newNode.Values[i] = sourceNode.Values[beginIndex + i];
+                newNode.Children[i] = sourceNode.Children[beginIndex + i];
+                newNode.CountOfKeys++;
+            }
+            newNode.Children[endIndex - beginIndex] = sourceNode.Children[endIndex];
+            return newNode;
+        }
         private SplittedNode SplitNode(Node node)
         {
-            var firstPart = new Node(degreeOfTree);
-            var secondPart = new Node(degreeOfTree);
-            firstPart.Leaf = node.Leaf;
-            firstPart.Parent = node.Parent;
-            secondPart.Parent = node.Parent;
-            secondPart.Leaf = node.Leaf;
-            int separator = (node.CountOfKeys - 1) / 2;
-            for (int i = 0; i < separator; i++)
-            {
-                firstPart.Values[i] = node.Values[i];
-                firstPart.Keys[i] = node.Keys[i];
-                firstPart.Children[i] = node.Children[i];
-                firstPart.CountOfKeys++;
-            }
-            firstPart.Children[separator] = node.Children[separator];
-            for (int i = 0; i < node.CountOfKeys - separator - 1; i++)
-            {
-                secondPart.Values[i] = node.Values[separator + 1 + i];
-                secondPart.Keys[i] = node.Keys[separator + 1 + i];
-                secondPart.Children[i] = node.Children[separator + 1 + i];
-                secondPart.CountOfKeys++;
-            }
-            secondPart.Children[node.CountOfKeys - separator - 1] = node.Children[node.CountOfKeys];
+            var separator = (node.CountOfKeys - 1) / 2;
+            var firstPart = CopyNode(node, 0, separator);
+            var secondPart = CopyNode(node, separator + 1, node.CountOfKeys);
             return new SplittedNode(firstPart, secondPart, node.Keys[separator], node.Values[separator]);
         }
 
         private void AddKeyToNode(Node node, string key, string value, Node firstPart, Node secondPart)
         {
             var indexForInsert = FindIndexForInsert(node, key);
+            if (node.Keys[indexForInsert] == key)
+            {
+                node.Values[indexForInsert] = value;
+                return;
+            }
             for (int i = node.CountOfKeys - 1; i >= indexForInsert; i--)
             {
                 node.Keys[i + 1] = node.Keys[i];
@@ -182,6 +181,10 @@ namespace BTree
             while (!currentNode.Leaf)
             {
                 var indexForInsert = FindIndexForInsert(currentNode, key);
+                if (currentNode.Keys[indexForInsert] == key)
+                {
+                    return currentNode;
+                }
                 currentNode = currentNode.Children[indexForInsert];
             }
             return currentNode;

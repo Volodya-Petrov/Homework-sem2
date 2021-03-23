@@ -13,8 +13,8 @@ namespace BTree
             dict.Insert("d", "jest");
             dict.Insert("e", "grau");
             dict.Insert("f", "pay");
-            bool check = dict.KeyExist("d");
-            check = dict.KeyExist("e");
+            bool check = dict.Contains("d");
+            check = dict.Contains("e");
             var str = dict.GetValue("d");
             dict.ChangeValue("d", "veryJest");
             str = dict.GetValue("d");

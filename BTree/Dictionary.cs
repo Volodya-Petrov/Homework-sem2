@@ -111,7 +111,7 @@ namespace BTree
 
         public void Insert(string key, string value)
         {
-            var currentNode = FindNodeForInsert(root, key);
+            var currentNode = FindNodeForInsert(key);
             AddKeyToNode(currentNode, key, value, null, null);
             while (currentNode.CountOfKeys > 2 * degreeOfTree - 1)
             {
@@ -132,62 +132,159 @@ namespace BTree
                 }
                 AddKeyToNode(currentNode, splittedNode.keyForInsert, splittedNode.valueForInsert, splittedNode.firstPartOfNode, splittedNode.secondPartOfNode);
             }
-
         }
 
         public void Remove(string key)
         {
-
+            var node = FindNodeForInsert(key);
+            if (FindIndexForInsert(node, key) == node.CountOfKeys)
+            {
+                return;
+            }
+            RemoveFromInternalNode(node, key);
         }
 
-        private void RemoveLeafCase(string key, Node node)
+        private void RemoveFromInternalNode(Node node, string key)
+        {
+            if (node.Leaf)
+            {
+                RemoveFromLeaf(node, key);
+                return;
+            }
+            var indexOfKey = FindIndexForInsert(node, key);
+            node.Keys[indexOfKey] = node.Children[indexOfKey + 1].Keys[0];
+            node.Values[indexOfKey] = node.Children[indexOfKey + 1].Values[0];
+            RemoveFromInternalNode(node.Children[indexOfKey + 1], node.Children[indexOfKey + 1].Keys[0]);
+        }
+
+        private void RemoveFromLeaf(Node node, string key)
         {
             RemoveKeyInLeaf(key, node);
-            if (node.CountOfKeys == degreeOfTree)
+            if (node == root)
             {
-                var parentNode = node.Parent;
-                var indexOfParent = FindIndexForInsert(parentNode, key);
-                var oldParentKey = parentNode.Keys[indexOfParent];
-                var oldParentValue = parentNode.Values[indexOfParent];
-                AddKeyToNode(node, oldParentKey, oldParentValue, null, null);
-                string newParentKey;
-                string newParentValue;
-                if (parentNode.Children[indexOfParent + 1].CountOfKeys > degreeOfTree - 1)
-                {
-                    newParentKey = parentNode.Children[indexOfParent + 1].Keys[0];
-                    newParentValue = parentNode.Children[indexOfParent + 1].Values[0];
-                    RemoveKeyInLeaf(newParentKey, parentNode.Children[indexOfParent + 1]);
-                    parentNode.Keys[indexOfParent] = newParentKey;
-                    parentNode.Values[indexOfParent] = newParentValue;
-                    return;
-                }
-                var mergedNode = MergeLeaves(node, parentNode.Children[indexOfParent + 1]);
-                newParentKey = mergedNode.Keys[0];
-                newParentValue = mergedNode.Values[0];
-                RemoveKeyInLeaf(newParentKey, mergedNode);
-                parentNode.Keys[indexOfParent] = newParentKey;
-                parentNode.Values[indexOfParent] = newParentValue;
-                parentNode.Children[indexOfParent] = null;
-                parentNode.Children[indexOfParent + 1] = mergedNode;
+                return;
             }
+            Rebalancing(node);
         }
-        
-        private Node MergeLeaves(Node firstLeaf, Node secondLeaf)
+
+        private void Rebalancing(Node node)
         {
-            var newNode = new Node(degreeOfTree);
-            newNode.Leaf = true;
-            newNode.Parent = firstLeaf.Parent;
-            for (int i  = 0; i < firstLeaf.CountOfKeys; i++)
+            if (node == root)
             {
-                newNode.Keys[i] = firstLeaf.Keys[i];
-                newNode.Values[i] = firstLeaf.Values[i];
+                if (node.CountOfKeys == 0)
+                {
+                    root = node.Children[0];
+                    root.Parent = null;
+                }
+                return;
             }
-            for (int i = firstLeaf.CountOfKeys; i < firstLeaf.CountOfKeys + secondLeaf.CountOfKeys; i++)
+            if (node.CountOfKeys >= degreeOfTree - 1)
             {
-                newNode.Keys[i] = secondLeaf.Keys[i - firstLeaf.CountOfKeys];
-                newNode.Values[i] = secondLeaf.Values[i - firstLeaf.CountOfKeys];
+                return;
             }
-            return newNode;
+            var parent = node.Parent;
+            var indexOfNode = -1;
+            for (int i = 0; i < parent.CountOfKeys; i++)
+            {
+                if (parent.Children[i] == node)
+                {
+                    indexOfNode = i;
+                }
+            }
+            if (indexOfNode == -1)
+            {
+                indexOfNode = parent.CountOfKeys;
+            }
+            if (indexOfNode > 0 && parent.Children[indexOfNode - 1].CountOfKeys > degreeOfTree - 1)
+            {
+                LeftRotation(parent, indexOfNode - 1);
+            }
+            if (indexOfNode != parent.CountOfKeys && parent.Children[indexOfNode + 1].CountOfKeys > degreeOfTree - 1)
+            {
+                RightRotation(parent, indexOfNode);
+                return;
+            }
+            if (indexOfNode > 0)
+            {
+                MergeNodes(parent, indexOfNode - 1, indexOfNode, indexOfNode - 1);
+                Rebalancing(parent);
+                return;
+            }
+            MergeNodes(parent, indexOfNode, indexOfNode + 1, indexOfNode);
+            Rebalancing(parent);
+        }
+
+        private void MergeNodes(Node parent, int indexFirstNode, int indexSecondNode, int indexOfParent)
+        {
+            var leftNode = parent.Children[indexFirstNode];
+            var rightNode = parent.Children[indexSecondNode];
+            leftNode.Keys[leftNode.CountOfKeys] = parent.Keys[indexOfParent];
+            leftNode.Values[leftNode.CountOfKeys] = parent.Values[indexOfParent];
+            leftNode.CountOfKeys++;
+            var startIndex = leftNode.CountOfKeys;
+            for (int i = startIndex; i < startIndex + rightNode.CountOfKeys; i++)
+            {
+                leftNode.Keys[i] = rightNode.Keys[i - startIndex];
+                leftNode.Values[i] = rightNode.Values[i - startIndex];
+                leftNode.Children[i] = rightNode.Children[i - startIndex];
+                leftNode.CountOfKeys++;
+            }
+            leftNode.Children[startIndex + rightNode.CountOfKeys] = rightNode.Children[rightNode.CountOfKeys];
+            for (int i = indexOfParent; i < parent.CountOfKeys - 1; i++)
+            {
+                parent.Keys[i] = parent.Keys[i + 1];
+                parent.Values[i] = parent.Values[i + 1];
+                parent.Children[i + 1] = parent.Children[i + 2];
+            }
+            parent.Keys[parent.CountOfKeys - 1] = null;
+            parent.Values[parent.CountOfKeys - 1] = null;
+            parent.Children[parent.CountOfKeys] = null;
+            parent.CountOfKeys--;
+        }
+
+        private void LeftRotation(Node parent, int indexOfParent)
+        {
+            var leftChild = parent.Children[indexOfParent];
+            var rightChild = parent.Children[indexOfParent + 1];
+            for (int i = rightChild.CountOfKeys - 1; i >= 0; i--)
+            {
+                rightChild.Keys[i + 1] = rightChild.Keys[i];
+                rightChild.Values[i + 1] = rightChild.Values[i];
+                rightChild.Children[i + 2] = rightChild.Children[i + 1];
+            }
+            rightChild.Children[1] = rightChild.Children[0];
+            rightChild.Keys[0] = parent.Keys[indexOfParent];
+            rightChild.Values[0] = parent.Values[indexOfParent];
+            rightChild.CountOfKeys++;
+            parent.Keys[indexOfParent] = leftChild.Keys[leftChild.CountOfKeys - 1];
+            parent.Values[indexOfParent] = leftChild.Values[leftChild.CountOfKeys - 1];
+            leftChild.Keys[leftChild.CountOfKeys - 1] = null;
+            leftChild.Values[leftChild.CountOfKeys - 1] = null;
+            leftChild.Children[leftChild.CountOfKeys] = null;
+            leftChild.CountOfKeys--;
+        }
+
+        private void RightRotation(Node parent, int indexOfParent)
+        {
+            var leftChild = parent.Children[indexOfParent];
+            var rightChild = parent.Children[indexOfParent + 1];
+            leftChild.Keys[leftChild.CountOfKeys] = parent.Keys[indexOfParent];
+            leftChild.Values[leftChild.CountOfKeys] = parent.Values[indexOfParent];
+            leftChild.Children[leftChild.CountOfKeys + 1] = rightChild.Children[0];
+            leftChild.CountOfKeys++;
+            parent.Keys[indexOfParent] = rightChild.Keys[0];
+            parent.Values[indexOfParent] = rightChild.Values[0];
+            for (int i = 0; i < rightChild.CountOfKeys - 1; i++)
+            {
+                rightChild.Keys[i] = rightChild.Keys[i + 1];
+                rightChild.Values[i] = rightChild.Values[i + 1];
+                rightChild.Children[i] = rightChild.Children[i + 1];
+            }
+            rightChild.Children[rightChild.CountOfKeys - 1] = rightChild.Children[rightChild.CountOfKeys];
+            rightChild.Children[rightChild.CountOfKeys] = null;
+            rightChild.Keys[rightChild.CountOfKeys - 1] = null;
+            rightChild.Values[rightChild.CountOfKeys - 1] = null;
+            rightChild.CountOfKeys--;
         }
 
         private void RemoveKeyInLeaf(string key, Node node)
@@ -249,7 +346,7 @@ namespace BTree
             return;
         }
 
-        private Node FindNodeForInsert(Node root, string key)
+        private Node FindNodeForInsert(string key)
         {
             var currentNode = root;
             while (!currentNode.Leaf)

@@ -17,6 +17,8 @@ namespace BTree
             dict.Insert("8", "8");
             dict.Insert("9", "9");
             dict.Remove("2");
+            dict.Remove("5");
+            dict.Remove("4");
         }
     }
 }

@@ -2,7 +2,10 @@
 
 namespace BTree
 {
-    class Dictionary
+    /// <summary>
+    /// словарь хранящий ключ-значение на основе B дерева
+    /// </summary>
+    public class Dictionary
     {   
         private struct SplittedNode
         {   
@@ -54,6 +57,9 @@ namespace BTree
             public Node[] Children { get; set; }
         }
 
+        /// <summary>
+        /// проверяет есть ли ключ в словаре
+        /// </summary>
         public bool Contains(string key)
         {
             var currentNode = root;
@@ -71,6 +77,9 @@ namespace BTree
             return key == currentNode.Keys[indexForInsert];
         }
 
+        /// <summary>
+        /// возвращает значение по ключу
+        /// </summary>
         public string GetValue(string key)
         {
             var currentNode = root;
@@ -88,6 +97,9 @@ namespace BTree
             return key == currentNode.Keys[indexForInsert] ? currentNode.Values[indexForInsert] : null;
         }
 
+        /// <summary>
+        /// Меняет значение по ключу
+        /// </summary>
         public void ChangeValue(string key, string newValue)
         {
             var currentNode = root;
@@ -109,6 +121,9 @@ namespace BTree
             }
         }
 
+        /// <summary>
+        /// добавляет ключ в словарь
+        /// </summary>
         public void Insert(string key, string value)
         {
             var currentNode = FindNodeForInsert(key);
@@ -134,6 +149,9 @@ namespace BTree
             }
         }
 
+        /// <summary>
+        /// удаляет ключ из словаря
+        /// </summary>
         public void Remove(string key)
         {
             var node = FindNodeForInsert(key);
@@ -183,21 +201,11 @@ namespace BTree
                 return;
             }
             var parent = node.Parent;
-            var indexOfNode = -1;
-            for (int i = 0; i < parent.CountOfKeys; i++)
-            {
-                if (parent.Children[i] == node)
-                {
-                    indexOfNode = i;
-                }
-            }
-            if (indexOfNode == -1)
-            {
-                indexOfNode = parent.CountOfKeys;
-            }
+            var indexOfNode = FindNodeIndexInChildren(node);
             if (indexOfNode > 0 && parent.Children[indexOfNode - 1].CountOfKeys > degreeOfTree - 1)
             {
                 LeftRotation(parent, indexOfNode - 1);
+                return;
             }
             if (indexOfNode != parent.CountOfKeys && parent.Children[indexOfNode + 1].CountOfKeys > degreeOfTree - 1)
             {
@@ -214,6 +222,19 @@ namespace BTree
             Rebalancing(parent);
         }
 
+        private int FindNodeIndexInChildren(Node node)
+        {
+            var parent = node.Parent;
+            for (int i = 0; i < parent.CountOfKeys; i++)
+            {
+                if (parent.Children[i] == node)
+                {
+                    return i;
+                }
+            }
+            return parent.CountOfKeys;
+        }
+
         private void MergeNodes(Node parent, int indexFirstNode, int indexSecondNode, int indexOfParent)
         {
             var leftNode = parent.Children[indexFirstNode];
@@ -227,9 +248,17 @@ namespace BTree
                 leftNode.Keys[i] = rightNode.Keys[i - startIndex];
                 leftNode.Values[i] = rightNode.Values[i - startIndex];
                 leftNode.Children[i] = rightNode.Children[i - startIndex];
+                if (!leftNode.Leaf)
+                {
+                    leftNode.Children[i].Parent = leftNode;
+                }
                 leftNode.CountOfKeys++;
             }
             leftNode.Children[startIndex + rightNode.CountOfKeys] = rightNode.Children[rightNode.CountOfKeys];
+            if (!leftNode.Leaf)
+            {
+                leftNode.Children[startIndex + rightNode.CountOfKeys].Parent = leftNode;
+            }
             for (int i = indexOfParent; i < parent.CountOfKeys - 1; i++)
             {
                 parent.Keys[i] = parent.Keys[i + 1];
@@ -255,6 +284,11 @@ namespace BTree
             rightChild.Children[1] = rightChild.Children[0];
             rightChild.Keys[0] = parent.Keys[indexOfParent];
             rightChild.Values[0] = parent.Values[indexOfParent];
+            rightChild.Children[0] = leftChild.Children[leftChild.CountOfKeys];
+            if (!rightChild.Leaf)
+            {
+                rightChild.Children[0].Parent = rightChild;
+            }
             rightChild.CountOfKeys++;
             parent.Keys[indexOfParent] = leftChild.Keys[leftChild.CountOfKeys - 1];
             parent.Values[indexOfParent] = leftChild.Values[leftChild.CountOfKeys - 1];
@@ -271,6 +305,10 @@ namespace BTree
             leftChild.Keys[leftChild.CountOfKeys] = parent.Keys[indexOfParent];
             leftChild.Values[leftChild.CountOfKeys] = parent.Values[indexOfParent];
             leftChild.Children[leftChild.CountOfKeys + 1] = rightChild.Children[0];
+            if (!leftChild.Leaf)
+            {
+                leftChild.Children[leftChild.CountOfKeys + 1].Parent = leftChild;
+            }
             leftChild.CountOfKeys++;
             parent.Keys[indexOfParent] = rightChild.Keys[0];
             parent.Values[indexOfParent] = rightChild.Values[0];
@@ -311,9 +349,17 @@ namespace BTree
                 newNode.Keys[i] = sourceNode.Keys[beginIndex + i];
                 newNode.Values[i] = sourceNode.Values[beginIndex + i];
                 newNode.Children[i] = sourceNode.Children[beginIndex + i];
+                if (!newNode.Leaf)
+                {
+                    newNode.Children[i].Parent = newNode;
+                }
                 newNode.CountOfKeys++;
             }
             newNode.Children[endIndex - beginIndex] = sourceNode.Children[endIndex];
+            if (!newNode.Leaf)
+            {
+                newNode.Children[endIndex - beginIndex].Parent = newNode;
+            }
             return newNode;
         }
         private SplittedNode SplitNode(Node node)

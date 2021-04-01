@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace WorkWithLists
-{
+{   
+    /// <summary>
+    /// стандартный список
+    /// </summary>
     public class List
     {   
+        /// <summary>
+        /// get выдает элемент по позиции в списке
+        /// set меняет значение элемента по заданной позиции
+        /// </summary>
         public int this[int i]
         {
             get => GetValue(i);
             set => ChangeValue(i, value);
         }
 
-        private class Node
+        protected class Node
         {   
             public Node(int value, Node next)
             {
@@ -24,14 +31,20 @@ namespace WorkWithLists
 
             public Node Next { get; set; }
         }
-
+        
+        /// <summary>
+        /// выдает кол-во элементов в списке
+        /// </summary>
         public int Length { get => length; }
 
-        private int length;
-        private Node root;
-        private Node tail;
+        protected int length;
+        protected Node root;
+        protected Node tail;
 
-        public void Add(int value)
+        /// <summary>
+        /// добавление элемента в конец списка
+        /// </summary>
+        public virtual void Add(int value)
         {
             length++;
             if (root == null)
@@ -44,7 +57,10 @@ namespace WorkWithLists
             tail = tail.Next;
         }
 
-        public void Insert(int index, int value)
+        /// <summary>
+        /// вставка элемента по указанному индексу
+        /// </summary>
+        public virtual void Insert(int index, int value)
         {
             if (index < 0 || index > length)
             {
@@ -75,17 +91,20 @@ namespace WorkWithLists
             length++;
         }
 
+        /// <summary>
+        /// удаляет элемент по заданной позиции
+        /// </summary>
         public void Remove(int index)
         {
             if (index < 0 || index >= length)
             {
-                throw new IndexOutOfRangeException();
+                throw new ElementDoesNotExist();
             }
             if (index == 0)
             {
                 if (length == 0)
                 {
-
+                    throw new ElementDoesNotExist();
                 }
                 if (length == 1)
                 {
@@ -133,13 +152,13 @@ namespace WorkWithLists
             }
             return null;
         }
-        private void ChangeValue(int index, int newValue)
+        protected virtual void ChangeValue(int index, int newValue)
         {
             var node = FindNode(index);
             node.Value = newValue;
         }
 
-        private int GetValue(int index)
+        protected int GetValue(int index)
         {
             var node = FindNode(index);
             return node.Value;

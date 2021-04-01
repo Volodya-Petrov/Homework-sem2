@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using WorkWithLists;
 
 namespace TestForLists.test
 {
@@ -42,6 +41,12 @@ namespace TestForLists.test
             Assert.IsTrue(list[0] == 5);
             Assert.IsTrue(list[3] == 21);
             Assert.IsTrue(list[5] == 11);
+        }
+
+        [Test]
+        public void TestShouldThrowExceptionWhenRemoveIndexNotExisting()
+        {
+            Assert.Throws<WorkWithLists.ElementDoesNotExist>(() => list.Remove(5));
         }
     }
 }

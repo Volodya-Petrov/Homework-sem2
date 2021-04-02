@@ -2,7 +2,10 @@
 using System.Runtime.Serialization;
 
 namespace Task1
-{
+{   
+    /// <summary>
+    /// кидается когда пытаются сложить или умножить два вектора разной длины
+    /// </summary>
     [Serializable]
     public class VectorsLengthsAreNotEqualException : Exception
     {

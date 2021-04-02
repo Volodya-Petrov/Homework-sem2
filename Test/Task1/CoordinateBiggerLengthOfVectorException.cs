@@ -2,7 +2,10 @@
 using System.Runtime.Serialization;
 
 namespace Task1
-{
+{   
+    /// <summary>
+    /// кидается когда есть координата больше либо равна длине вектора
+    /// </summary>
     [Serializable]
     public class CoordinateBiggerLengthOfVectorException : Exception
     {

@@ -16,6 +16,10 @@ namespace Task1
                 {
                     throw new CoordinateBiggerLengthOfVectorException();
                 }
+                if (dict[key] == 0)
+                {
+                    dict.Remove(key);
+                }
             }
             this.dict = dict;
             Length = length;

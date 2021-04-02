@@ -6,7 +6,7 @@ namespace MyConsoleGame
     {
         static void Main(string[] args)
         {
-            var game = new Game("Map.txt");
+            var game = new Game("Map.txt", Console.SetCursorPosition, Console.Write);
             var eventLoop = new EventLoop();
             eventLoop.LeftHandler += game.OnLeft;
             eventLoop.RightHandler += game.OnRight;

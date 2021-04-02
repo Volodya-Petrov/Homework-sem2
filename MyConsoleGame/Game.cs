@@ -3,25 +3,31 @@ using System.IO;
 
 namespace MyConsoleGame
 {
-    class Game
+    public class Game
     {   
-        public Game(string fileName)
-        {
+        public Game(string fileName, Action<int, int> CursorForPrintFunction, Action<string> PrintFunction)
+        {   
+            CursorForPrint = CursorForPrintFunction;
+            Print = PrintFunction;
             InitMap(fileName);
         }
+        private Action<int, int> CursorForPrint;
+        private Action<string> Print;
         private bool[,] map;
         private int x;
         private int y;
+
+        public (int x, int y) GetCoordinates() => (x, y);
 
         public void OnLeft()
         {
             if (map[x - 1, y] != true)
             {
-                Console.Write(" ");
-                Console.SetCursorPosition(x - 1, y);
+                Print(" ");
+                CursorForPrint(x - 1, y);
                 x--;
-                Console.Write("@");
-                Console.SetCursorPosition(x, y);
+                Print("@");
+                CursorForPrint(x, y);
             }
         }
 
@@ -29,11 +35,11 @@ namespace MyConsoleGame
         {
             if (map[x + 1, y] != true)
             {
-                Console.Write(" ");
-                Console.SetCursorPosition(x + 1, y);
+                Print(" ");
+                CursorForPrint(x + 1, y);
                 x++;
-                Console.Write("@");
-                Console.SetCursorPosition(x, y);
+                Print("@");
+                CursorForPrint(x, y);
             }
         }
 
@@ -41,11 +47,11 @@ namespace MyConsoleGame
         {
             if (map[x, y - 1] != true)
             {
-                Console.Write(" ");
-                Console.SetCursorPosition(x, y - 1);
+                Print(" ");
+                CursorForPrint(x, y - 1);
                 y--;
-                Console.Write("@");
-                Console.SetCursorPosition(x, y);
+                Print("@");
+                CursorForPrint(x, y);
             }
         }
 
@@ -53,11 +59,11 @@ namespace MyConsoleGame
         {
             if (map[x, y + 1] != true)
             {
-                Console.Write(" ");
-                Console.SetCursorPosition(x, y + 1);
+                Print(" ");
+                CursorForPrint(x, y + 1);
                 y++;
-                Console.Write("@");
-                Console.SetCursorPosition(x, y);
+                Print("@");
+                CursorForPrint(x, y);
             }
         }
 
@@ -72,23 +78,23 @@ namespace MyConsoleGame
                     if (fileText[y][x] == '#')
                     {
                         map[x, y] = true;
-                        Console.SetCursorPosition(x, y);
-                        Console.Write('#');
+                        CursorForPrint(x, y);
+                        Print("#");
                         continue;
                     }
                     if (fileText[y][x] == '@')
                     {
                         this.x = x;
                         this.y = y;
-                        Console.SetCursorPosition(x, y);
-                        Console.Write('@');
+                        CursorForPrint(x, y);
+                        Print("@");
                         continue;
                     }
-                    Console.SetCursorPosition(x, y);
-                    Console.Write(' ');
+                    CursorForPrint(x, y);
+                    Print(" ");
                 }
             }
-            Console.SetCursorPosition(x, y);
+            CursorForPrint(x, y);
         }
     }
 }

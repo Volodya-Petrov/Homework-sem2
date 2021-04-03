@@ -69,7 +69,7 @@ namespace MyConsoleGame
 
         private void InitMap(string fileName)
         {
-            var fileText = File.ReadAllLines(fileName);
+            var fileText = File.ReadAllLines("../../../" + fileName);
             map = new bool[fileText[0].Length, fileText.Length];
             for (int y = 0; y < fileText.Length; y++)
             {

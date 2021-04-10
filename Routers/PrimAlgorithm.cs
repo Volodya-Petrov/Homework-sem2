@@ -3,85 +3,122 @@ using System.IO;
 using System.Linq;
 
 namespace Routers
-{
-    class PrimAlgorithm
-    {
-
-        private static int ReadNumber(string str, ref int index)
+{   
+    /// <summary>
+    /// класс для реализации алгоритма прима
+    /// </summary>
+    public class PrimAlgorithm
+    {   
+        private static List<string[]> GetSplittedStrings(string path)
         {
-            var endIndex = index;
-            int number;
-            while (endIndex != str.Length)
+            var stringsFromFile = File.ReadAllLines(path);
+            var spittedStrings = new List<string[]>();
+            for (int i = 0; i < stringsFromFile.Length; i++)
             {
-                if (!int.TryParse(str[endIndex].ToString(), out number))
-                {
-                    number = int.Parse(str.Substring(index, endIndex - index));
-                    index = endIndex;
-                    return number;
-                }
-                endIndex++;
+                stringsFromFile[i] = stringsFromFile[i].Replace(":", "");
+                stringsFromFile[i] = stringsFromFile[i].Replace("(", "");
+                stringsFromFile[i] = stringsFromFile[i].Replace(")", "");
+                stringsFromFile[i] = stringsFromFile[i].Replace(",", "");
+                spittedStrings.Add(stringsFromFile[i].Split(' '));
             }
-            number = int.Parse(str.Substring(index, endIndex - index));
-            index = endIndex;
-            return number;
+            return spittedStrings;
         }
 
-        private static void ReadEdgesFromString(string str, List<Edge> edges)
+        private static int GetCountOfVertices(string path)
         {
-            var index = 0;
-            int tryParse;
-            var lastNumber = 0;
-            var firstVertex = 0;
-            var secondVertex = 0;
-            while (index != str.Length)
+            var splittedStrings = GetSplittedStrings(path);
+            var max = -1;
+            for (int i = 0; i < splittedStrings.Count; i++)
             {
-                if (int.TryParse(str[index].ToString(), out tryParse))
+                for (int j = 1; j < splittedStrings[i].Length; j += 2)
                 {
-                    lastNumber = ReadNumber(str, ref index);
-                    continue;
+                    if (int.Parse(splittedStrings[i][j]) > max)
+                    {
+                        max = int.Parse(splittedStrings[i][j]);
+                    }
                 }
-                else if (str[index] == ':')
+                if (int.Parse(splittedStrings[i][0]) > max)
                 {
-                    firstVertex = lastNumber;
+                    max = int.Parse(splittedStrings[i][0]);
                 }
-                else if (str[index] == '(')
+            }
+            return max;
+        }
+
+        private static int[,] GetMatrixGraph(string path)
+        {
+            var countOfVertices = GetCountOfVertices(path);
+            var graph = new int[countOfVertices, countOfVertices];
+            var splittedStrings = GetSplittedStrings(path);
+            for (int i = 0; i < splittedStrings.Count; i++)
+            {
+                var index1 = int.Parse(splittedStrings[i][0]) - 1;
+                for (int j = 1; j < splittedStrings[i].Length; j += 2)
                 {
-                    secondVertex = lastNumber;
+                    var index2 = int.Parse(splittedStrings[i][j]) - 1;
+                    graph[index1, index2] = 1;
+                    graph[index2, index1] = 1;
                 }
-                else if (str[index] == ')')
+            }
+            return graph;
+        }
+        
+        private static void DFS(int startVetrex, bool[] visited, int[,] matrix)
+        {
+            if (visited[startVetrex])
+            {
+                return;
+            }
+            visited[startVetrex] = true;
+            for (int i = 0; i < visited.Length; i++)
+            {
+                if (matrix[startVetrex, i] == 1)
                 {
-                    edges.Add(new Edge(lastNumber, firstVertex, secondVertex));
+                    DFS(i, visited, matrix);
                 }
-                index++;
             }
         }
 
-        private static (List<Edge> edges, int countOfVertices) GetEdges(string path)
+        private static bool CheckConnectedGraph(string path)
+        {
+            var graph = GetMatrixGraph(path);
+            var countOfVertices = (int)System.Math.Sqrt(graph.Length);
+            var visited = new bool[countOfVertices];
+            DFS(0, visited, graph);
+            for (int i = 0; i < visited.Length; i++)
+            {
+                if (!visited[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private static void ReadEdgesFromString(string[] splittedString, List<Edge> edges)
+        {
+            var index = 1;
+            while (index < splittedString.Length)
+            {
+                edges.Add(new Edge(int.Parse(splittedString[index + 1]), int.Parse(splittedString[0]), int.Parse(splittedString[index])));
+                index += 2;
+            }
+        }
+
+        private static List<Edge> GetEdges(string path)
         {
             var edges = new List<Edge>();
-            var stringsFromFile = File.ReadAllLines(path);
-            for (int i = 0; i< stringsFromFile.Length; i++)
+            var stringsFromFile = GetSplittedStrings(path);
+            for (int i = 0; i< stringsFromFile.Count; i++)
             {
                 ReadEdgesFromString(stringsFromFile[i], edges);
             }
-            var max = 0;
-            for (int i = 0; i < edges.Count; i++)
-            {
-                if (edges[i].Vertex1 > max)
-                {
-                    max = edges[i].Vertex1;
-                }
-                if (edges[i].Vertex2 > max)
-                {
-                    max = edges[i].Vertex2;
-                }
-            }
-            return (edges, max);
+            return edges;
         }
 
         private static void WriteIntoFile(string path, List<Edge> edges)
         {
-            using var file = new StreamWriter(path, true);
+            using var file = new StreamWriter(path, false);
             var sortedEdges = edges.OrderBy(edge => edge.Vertex1.ToString() + edge.Vertex2.ToString());
             int currentFirstVertex = -1;
             foreach(Edge edge in sortedEdges)
@@ -92,25 +129,31 @@ namespace Routers
                     {
                         file.Write("\n");
                     }
-                    file.Write($"{edge.Vertex1}: {edge.Vertex2}({edge.Weight})");
+                    file.Write($"{edge.Vertex1}: {edge.Vertex2} ({edge.Weight})");
                     currentFirstVertex = edge.Vertex1;
                 }
                 else
                 {
-                    file.Write($", {edge.Vertex2}({edge.Weight})");
+                    file.Write($", {edge.Vertex2} ({edge.Weight})");
                 }
             }
             file.Close();
         }
 
+        /// <summary>
+        /// реализация алгоритма прима
+        /// </summary>
         public static void WriteMaximunSpanningTree(string sourcePath, string destinationPath)
-        {
+        {   
+            if (!CheckConnectedGraph(sourcePath))
+            {
+                throw new GraphIsNotConnectedException();
+            }
             var maximumSpanningTree = new List<Edge>();
             var usedVertices = new List<int>();
             var notUsedVertices = new List<int>();
-            var edgesAndVetices = GetEdges(sourcePath);
-            var notUsedEdges = edgesAndVetices.edges;
-            var countOfVertices = edgesAndVetices.countOfVertices;
+            var notUsedEdges = GetEdges(sourcePath);
+            var countOfVertices = GetCountOfVertices(sourcePath);
             for (int i = 1; i < countOfVertices + 1; i++)
             {
                 notUsedVertices.Add(i);

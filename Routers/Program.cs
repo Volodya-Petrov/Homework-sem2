@@ -6,11 +6,14 @@ namespace Routers
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите путь до файла с графом");
-            var path1 = Console.ReadLine();
-            Console.WriteLine("Введите путь до файла куда нужно будеть записать результат");
-            var path2 = Console.ReadLine();
-            PrimAlgorithm.WriteMaximunSpanningTree(path1, path2);
+            try
+            {
+                PrimAlgorithm.WriteMaximunSpanningTree(args[0], args[1]);
+            }
+            catch (GraphIsNotConnectedException error)
+            {
+                Console.Error.WriteLine(error.Message);
+            }
         }
     }
 }

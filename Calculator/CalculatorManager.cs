@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Windows.Forms;
 
 namespace Calculator
 {
-    class CalculatorManager
+    public class CalculatorManager
     {
         public string CurrentValue { get => currentValue; }
 
-        private string currentValue;
+        private string currentValue = "";
         private int state = 0;
         private int firstNumber;
         private string operatorSign;
@@ -29,6 +28,9 @@ namespace Calculator
             }
         }
 
+        /// <summary>
+        /// управляет поведением калькулятора при нажатии определенной кнопки
+        /// </summary>
         public void ButtonClick(string nameOfButton)
         {   
             if (nameOfButton == "C")
@@ -50,7 +52,7 @@ namespace Calculator
                         }
                         currentValue = nameOfButton;
                     }
-                    if (nameOfButton != "=")
+                    if (nameOfButton != "=" && currentValue != "")
                     {
                         firstNumber = int.Parse(currentValue);
                         operatorSign = nameOfButton;

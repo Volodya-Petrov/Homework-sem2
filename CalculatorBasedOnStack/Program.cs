@@ -12,8 +12,23 @@ namespace CalculatorBasedOnStack
             Console.WriteLine("Введите '1' - стек на списках, '2' - стек на ссылках");
             var key = Console.ReadLine();
             IStack stack = key == "1" ? new StackOnList() : new StackOnReferences();
-            var result = StackCalculator.CalculatePostfixForm(postFixString, stack);
-            Console.WriteLine($"Результат работы: {result}");
+            try
+            {
+                var result = StackCalculator.CalculatePostfixForm(postFixString, stack);
+                Console.WriteLine($"Результат работы: {result}");
+            }
+            catch (DivideByZeroException exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+            catch (ArgumentException exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("Некорректная запись постфиксной формы");
+            }
         }
     }
 }

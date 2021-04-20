@@ -24,7 +24,7 @@ namespace CalculatorBasedOnStack
                 {
                     var number1 = stack.Pop();
                     var number2 = stack.Pop();
-                    switch(elemntsFromPostFixForm[i])
+                    switch (elemntsFromPostFixForm[i])
                     {
                         case "+":
                             stack.Push(number1 + number2);

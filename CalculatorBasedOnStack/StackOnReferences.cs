@@ -9,7 +9,11 @@ namespace CalculatorBasedOnStack
     {
         private class StackElement
         {
-            public StackElement(double value) => Value = value;
+            public StackElement(double value, StackElement next)
+            {
+                Value = value;
+                Next = next;
+            }
 
             public StackElement Next { get; set; }
 
@@ -25,11 +29,10 @@ namespace CalculatorBasedOnStack
         {
             if (head == null)
             {
-                head = new StackElement(number);
+                head = new StackElement(number, null);
                 return;
             }
-            var newElement = new StackElement(number);
-            newElement.Next = head;
+            var newElement = new StackElement(number, head);
             head = newElement;
         }
 

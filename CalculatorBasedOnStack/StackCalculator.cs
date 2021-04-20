@@ -15,8 +15,7 @@ namespace CalculatorBasedOnStack
             var elemntsFromPostFixForm = postFixForm.Split(' ');
             for (int i = 0; i < elemntsFromPostFixForm.Length; i++)
             {
-                double number;
-                var isNumber = double.TryParse(elemntsFromPostFixForm[i], out number);
+                var isNumber = double.TryParse(elemntsFromPostFixForm[i], out int number);
                 if (isNumber)
                 {
                     stack.Push(number);

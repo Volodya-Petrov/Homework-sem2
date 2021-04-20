@@ -47,12 +47,12 @@ namespace CalculatorBasedOnStack
                     }
                 }
             }
-            var результат = stack.Pop();
+            var result = stack.Pop();
             if (!stack.IsEmpty())
             {
                 throw new ArgumentException("Некорректный ввод данных");
             }
-            return результат;
+            return result;
         }
     }
 }

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace WorkWithLists
 {   
     /// <summary>
     /// стандартный список
     /// </summary>
-    public class List
+    public class List : IList
     {   
         /// <summary>
         /// get выдает элемент по позиции в списке
@@ -19,7 +17,7 @@ namespace WorkWithLists
             set => ChangeValue(i, value);
         }
 
-        protected class Node
+        private class Node
         {   
             public Node(int value, Node next)
             {
@@ -37,9 +35,9 @@ namespace WorkWithLists
         /// </summary>
         public int Length { get => length; }
 
-        protected int length;
-        protected Node root;
-        protected Node tail;
+        private int length;
+        private Node root;
+        private Node tail;
 
         /// <summary>
         /// добавление элемента в конец списка
@@ -152,16 +150,31 @@ namespace WorkWithLists
             }
             return null;
         }
+
         protected virtual void ChangeValue(int index, int newValue)
         {
             var node = FindNode(index);
             node.Value = newValue;
         }
 
-        protected int GetValue(int index)
+        private int GetValue(int index)
         {
             var node = FindNode(index);
             return node.Value;
+        }
+
+        protected bool Contains(int value)
+        {
+            var currentNode = root;
+            while (currentNode != null)
+            {
+                if (currentNode.Value == value)
+                {
+                    return true;
+                }
+                currentNode = currentNode.Next;
+            }
+            return false;
         }
     }
 }

@@ -1,21 +1,10 @@
 ﻿namespace WorkWithLists
-{
+{   
+    /// <summary>
+    /// список без повторяющихся значений
+    /// </summary>
     public class UniqueList : List
     {   
-        private bool Contains(int value)
-        {
-            var currentNode = root;
-            while (currentNode != null)
-            {
-                if (currentNode.Value == value)
-                {
-                    return true;
-                }
-                currentNode = currentNode.Next;
-            }
-            return false;
-        }
-
         /// <summary>
         /// добавляет элемент в список, если его там нет
         /// </summary>

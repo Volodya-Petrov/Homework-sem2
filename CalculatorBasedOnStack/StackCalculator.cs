@@ -11,7 +11,7 @@ namespace CalculatorBasedOnStack
         /// считает постфиксную форму записи
         /// </summary>
         public static double CalculatePostfixForm(string postFixForm, IStack stack)
-        {
+        {   
             var elemntsFromPostFixForm = postFixForm.Split(' ');
             for (int i = 0; i < elemntsFromPostFixForm.Length; i++)
             {

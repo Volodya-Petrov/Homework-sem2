@@ -6,7 +6,7 @@ namespace CalculatorBasedOnStack
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите строку в постфикснов виде:");
+            Console.WriteLine("Введите строку в постфиксном виде:");
             var postFixString = Console.ReadLine();
             Console.WriteLine("Через какой стек нужно посчитать?");
             Console.WriteLine("Введите '1' - стек на списках, '2' - стек на ссылках");

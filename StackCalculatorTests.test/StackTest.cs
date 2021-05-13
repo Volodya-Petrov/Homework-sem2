@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using CalculatorBasedOnStack;
+using System;
 
 namespace StackCalculatorTests.test
 {
@@ -17,7 +18,7 @@ namespace StackCalculatorTests.test
         public void PopAfterPushShouldReturnSameValue(IStack stack)
         {
             stack.Push(5);
-            Assert.AreEqual(5, stack.Pop());
+            Assert.IsTrue(Math.Abs(stack.Pop() - 5.0) < double.Epsilon);
         }
 
         [TestCaseSource(nameof(Stacks))]

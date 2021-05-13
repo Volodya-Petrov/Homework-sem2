@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace CalculatorBasedOnStack
 {
@@ -15,7 +16,7 @@ namespace CalculatorBasedOnStack
             var elemntsFromPostFixForm = postFixForm.Split(' ');
             for (int i = 0; i < elemntsFromPostFixForm.Length; i++)
             {
-                var isNumber = double.TryParse(elemntsFromPostFixForm[i], out double number);
+                var isNumber = double.TryParse(elemntsFromPostFixForm[i], NumberStyles.Float, CultureInfo.InvariantCulture, out double number);
                 if (isNumber)
                 {
                     stack.Push(number);

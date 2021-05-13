@@ -1,5 +1,8 @@
 ﻿namespace ParseTree
-{
+{   
+    /// <summary>
+    /// интерфейс узла дерева
+    /// </summary>
     interface INode
     {   
         /// <summary>

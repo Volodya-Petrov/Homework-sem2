@@ -15,7 +15,8 @@ namespace ParseTree
             int index = 0;
             root = CreateTree(expression, ref index);
         }
-        INode root;
+
+        private INode root;
 
         /// <summary>
         ///  считает значение арифмитического выражения, записанного в дерево разбора
@@ -33,37 +34,42 @@ namespace ParseTree
             return root.Print();
         }
 
-        private bool isOperator(string symbol)
+        private bool isOperator(string symbol) => symbol switch
         {
-            switch(symbol)
-            {
-                case "+":
-                case "-":
-                case "*":
-                case "/":
-                    return true;
-                default:
-                    return false;
-            }
-        }
+            "+" or "-" or "*" or "/" => true,
+            _ => false
+        };
+        
+
+        private Operator GetOperator(string symbol) => symbol switch
+        {
+            "+" => new PlusOperator(null, null),
+            "-" => new MinusOperator(null, null),
+            "*" => new MultiplicationOperator(null, null),
+            "/" => new DivisionOperator(null, null),
+            _ => throw new ArgumentException()
+        };
 
         private INode CreateTree(string[] componentsOfExpression, ref int index)
         {
-            double value;
-            if (double.TryParse(componentsOfExpression[index], out value))
+            if (double.TryParse(componentsOfExpression[index], out double value))
             {
                 index++;
                 return new Operand(value);
             }
             while (index < componentsOfExpression.Length && !isOperator(componentsOfExpression[index]))
             {
+                if (componentsOfExpression[index] != ")" && componentsOfExpression[index] != "(")
+                {
+                    throw new ArgumentException();
+                }
                 index++;
             }
             if (index == componentsOfExpression.Length)
             {
-                return null;
+                throw new ArgumentException();
             }
-            var newNode = new Operator(componentsOfExpression[index], null, null);
+            var newNode = GetOperator(componentsOfExpression[index]);
             index++;
             newNode.LeftChild = CreateTree(componentsOfExpression, ref index);
             newNode.RightChild = CreateTree(componentsOfExpression, ref index);

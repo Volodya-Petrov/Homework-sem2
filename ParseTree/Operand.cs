@@ -1,5 +1,8 @@
 ﻿namespace ParseTree
-{
+{   
+    /// <summary>
+    /// класс для чисел в арифмитическом выражении
+    /// </summary>
     class Operand : INode
     {
         public Operand(double value) => Value = value;

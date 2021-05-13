@@ -16,24 +16,12 @@ namespace BTree
                 keyForInsert = key;
                 valueForInsert = value;
             }
+
             public Node firstPartOfNode;
             public Node secondPartOfNode;
             public string keyForInsert;
             public string valueForInsert;
         }
-
-        public Dictionary(int degree)
-        {   
-            if (degree < 2)
-            {
-                throw new ArgumentException("Степень словаря должна быть больше 1");
-            }
-            degreeOfTree = degree;
-            root = new Node(degree);
-            root.Leaf = true;
-        }
-        private int degreeOfTree;
-        private Node root;
 
         private class Node
         {
@@ -57,24 +45,27 @@ namespace BTree
             public Node[] Children { get; set; }
         }
 
+        public Dictionary(int degree)
+        {   
+            if (degree < 2)
+            {
+                throw new ArgumentException("Степень словаря должна быть больше 1");
+            }
+            degreeOfTree = degree;
+            root = new Node(degree);
+            root.Leaf = true;
+        }
+
+        private int degreeOfTree;
+        private Node root;
+
         /// <summary>
         /// проверяет есть ли ключ в словаре
         /// </summary>
         public bool Contains(string key)
         {
-            var currentNode = root;
-            int indexForInsert;
-            while (!currentNode.Leaf)
-            {
-                indexForInsert = FindIndexForInsert(currentNode, key);
-                if (currentNode.Keys[indexForInsert] == key)
-                {
-                    return true;
-                }
-                currentNode = currentNode.Children[indexForInsert];
-            }
-            indexForInsert = FindIndexForInsert(currentNode, key);
-            return key == currentNode.Keys[indexForInsert];
+            var currentNode = FindNodeForInsert(key);
+            return key == currentNode.Keys[FindIndexForInsert(currentNode, key)];
         }
 
         /// <summary>
@@ -82,18 +73,8 @@ namespace BTree
         /// </summary>
         public string GetValue(string key)
         {
-            var currentNode = root;
-            int indexForInsert;
-            while (!currentNode.Leaf)
-            {
-                indexForInsert = FindIndexForInsert(currentNode, key);
-                if (currentNode.Keys[indexForInsert] == key)
-                {
-                    return currentNode.Values[indexForInsert];
-                }
-                currentNode = currentNode.Children[indexForInsert];
-            }
-            indexForInsert = FindIndexForInsert(currentNode, key);
+            var currentNode = FindNodeForInsert(key);
+            var indexForInsert = FindIndexForInsert(currentNode, key);
             return key == currentNode.Keys[indexForInsert] ? currentNode.Values[indexForInsert] : null;
         }
 
@@ -102,23 +83,13 @@ namespace BTree
         /// </summary>
         public void ChangeValue(string key, string newValue)
         {
-            var currentNode = root;
-            int indexForInsert;
-            while (!currentNode.Leaf)
+            var currentNode = FindNodeForInsert(key);
+            int indexForInsert = FindIndexForInsert(currentNode, key);
+            if (currentNode.Keys[indexForInsert] != key)
             {
-                indexForInsert = FindIndexForInsert(currentNode, key);
-                if (currentNode.Keys[indexForInsert] == key)
-                {
-                    currentNode.Values[indexForInsert] = newValue;
-                    return;
-                }
-                currentNode = currentNode.Children[indexForInsert];
+                throw new ArgumentException();
             }
-            indexForInsert = FindIndexForInsert(currentNode, key);
-            if (currentNode.Keys[indexForInsert] == key)
-            {
-                currentNode.Values[indexForInsert] = newValue;
-            }
+            currentNode.Values[indexForInsert] = newValue;
         }
 
         /// <summary>
@@ -201,7 +172,7 @@ namespace BTree
                 return;
             }
             var parent = node.Parent;
-            var indexOfNode = FindNodeIndexInChildren(node);
+            var indexOfNode = FindNodeIndexInParent(node);
             if (indexOfNode > 0 && parent.Children[indexOfNode - 1].CountOfKeys > degreeOfTree - 1)
             {
                 LeftRotation(parent, indexOfNode - 1);
@@ -222,7 +193,7 @@ namespace BTree
             Rebalancing(parent);
         }
 
-        private int FindNodeIndexInChildren(Node node)
+        private int FindNodeIndexInParent(Node node)
         {
             var parent = node.Parent;
             for (int i = 0; i < parent.CountOfKeys; i++)
@@ -362,6 +333,7 @@ namespace BTree
             }
             return newNode;
         }
+
         private SplittedNode SplitNode(Node node)
         {
             var separator = (node.CountOfKeys - 1) / 2;

@@ -9,7 +9,6 @@ namespace BTree
     /// </summary>
     public class Dictionary<TKey, TValue> : IDictionary<TKey, TValue>
         where TKey : IComparable
-        where TValue : IComparable
     {   
         private struct SplittedNode
         {   
@@ -47,6 +46,46 @@ namespace BTree
             public TValue[] Values { get; set; }
 
             public Node[] Children { get; set; }
+        }
+
+        private class DictionaryEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
+        {
+            private int currentVersion;
+            private List<KeyValuePair<TKey, TValue>> list;
+            private int currentIndex;
+            private Dictionary<TKey, TValue> bTree;
+
+            public DictionaryEnumerator(Dictionary<TKey, TValue> dict)
+            {
+                currentVersion = dict.version;
+                bTree = dict;
+                currentIndex = 0;
+                list = dict.DFS();
+            }
+
+            public KeyValuePair<TKey, TValue> Current => list[currentIndex];
+
+            object IEnumerator.Current => list[currentIndex];
+
+            public void Dispose()
+            {
+
+            }
+
+            public bool MoveNext()
+            {
+                if (currentVersion != bTree.version)
+                {
+                    throw new InvalidOperationException();
+                }
+                currentIndex++;
+                return currentIndex < list.Count;
+            }
+
+            public void Reset()
+            {
+                currentIndex = 0;
+            }
         }
 
         public Dictionary(int degree)
@@ -124,7 +163,8 @@ namespace BTree
         public bool ContainsKey(TKey key)
         {
             var currentNode = FindNodeForInsert(key);
-            return key.CompareTo(currentNode.Keys[FindIndexForInsert(currentNode, key)]) == 0;
+            var indexForInsert = FindIndexForInsert(currentNode, key);
+            return key.CompareTo(currentNode.Keys[indexForInsert]) == 0 && currentNode.Count != indexForInsert;
         }
 
         /// <summary>
@@ -134,7 +174,7 @@ namespace BTree
         {
             var currentNode = FindNodeForInsert(key);
             var indexForInsert = FindIndexForInsert(currentNode, key);
-            if (key.CompareTo(currentNode.Keys[indexForInsert]) == 0)
+            if (key.CompareTo(currentNode.Keys[indexForInsert]) == 0 && indexForInsert != currentNode.Count)
             {
                 value = currentNode.Values[indexForInsert];
                 return true;
@@ -150,7 +190,7 @@ namespace BTree
         {
             var currentNode = FindNodeForInsert(key);
             int indexForInsert = FindIndexForInsert(currentNode, key);
-            if (currentNode.Keys[indexForInsert].CompareTo(key) != 0)
+            if (currentNode.Keys[indexForInsert].CompareTo(key) != 0 && indexForInsert != currentNode.Count)
             {
                 throw new ArgumentException();
             }
@@ -206,6 +246,53 @@ namespace BTree
             version++;
             return true;
         }
+
+        public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
+
+        public void Clear()
+        {
+            count = 0;
+            root = null;
+            version++;
+        }
+
+        public bool Contains(KeyValuePair<TKey, TValue> item)
+        {
+            if (TryGetValue(item.Key, out TValue value))
+            {
+                return value.Equals(item.Value);
+            }
+            return false;
+        }
+
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
+            if (array.Length - arrayIndex < count || arrayIndex < 0)
+            {
+                throw new ArgumentException();
+            }
+            foreach (var item in this)
+            {
+                array[arrayIndex] = item;
+                arrayIndex++;
+            }
+        }
+
+        public bool Remove(KeyValuePair<TKey, TValue> item)
+        {
+            if (TryGetValue(item.Key, out TValue value))
+            {
+                if (value.Equals(item))
+                {
+                    return Remove(item.Key);
+                }
+            }
+            return false;
+        }
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => new DictionaryEnumerator(this);
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private void RemoveFromInternalNode(Node node, TKey key)
         {
@@ -419,7 +506,7 @@ namespace BTree
         private void AddKeyToNode(Node node, TKey key, TValue value, Node firstPart, Node secondPart)
         {
             var indexForInsert = FindIndexForInsert(node, key);
-            if (node.Keys[indexForInsert].CompareTo(key) == 0)
+            if (node.Keys[indexForInsert].CompareTo(key) == 0 && indexForInsert != node.Count)
             {
                 node.Values[indexForInsert] = value;
                 return;
@@ -444,7 +531,7 @@ namespace BTree
             while (!currentNode.Leaf)
             {
                 var indexForInsert = FindIndexForInsert(currentNode, key);
-                if (currentNode.Keys[indexForInsert].CompareTo(key) == 0)
+                if (currentNode.Keys[indexForInsert].CompareTo(key) == 0 && indexForInsert != currentNode.Count)
                 {
                     return currentNode;
                 }
@@ -490,96 +577,5 @@ namespace BTree
             }
             RecursiveDFS(list, currentNode.Children[currentNode.Count]);
         }
-
-        public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
-
-        public void Clear()
-        {
-            count = 0;
-            root = null;
-            version++;
-        }
-
-        public bool Contains(KeyValuePair<TKey, TValue> item)
-        {
-            if (TryGetValue(item.Key, out TValue value))
-            {
-                return value.CompareTo(item.Value) == 0;
-            }
-            return false;
-        }
-
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-        {   
-            if (array.Length - arrayIndex < count || arrayIndex < 0)
-            {
-                throw new ArgumentException();
-            }
-            foreach (var item in this)
-            {
-                array[arrayIndex] = item;
-                arrayIndex++;
-            }
-        }
-
-        public bool Remove(KeyValuePair<TKey, TValue> item)
-        {
-            if (TryGetValue(item.Key, out TValue value))
-            {
-                if (value.CompareTo(item.Value) == 0)
-                {
-                    return Remove(item.Key);
-                }
-            }
-            return false;
-        }
-
-        private class DictionaryEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>
-        {
-            private int currentVersion;
-            private List<KeyValuePair<TKey, TValue>> list;
-            private int currentIndex;
-            private Dictionary<TKey, TValue> bTree;
-
-            public DictionaryEnumerator(Dictionary<TKey, TValue> dict)
-            {
-                currentVersion = dict.version;
-                bTree = dict;
-                currentIndex = 0;
-                list = dict.DFS();
-            }
-
-            public KeyValuePair<TKey, TValue> Current => list[currentIndex];
-
-            object IEnumerator.Current => list[currentIndex];
-
-            public void Dispose()
-            {
-
-            }
-
-            public bool MoveNext()
-            {
-                if (currentVersion != bTree.version)
-                {
-                    throw new InvalidOperationException();
-                }
-                if (currentIndex < list.Count)
-                {
-                    currentIndex++;
-                    return true;
-                }
-                return false;
-            }
-
-            public void Reset()
-            {
-                currentIndex = 0;
-            }
-        }
-
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => new DictionaryEnumerator(this);
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

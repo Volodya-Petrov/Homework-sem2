@@ -5,195 +5,83 @@ namespace TestsForBTree.test
 {
     public class Tests
     {
-        private Dictionary Setup()
-        {
-            var dict = new Dictionary(2);
-            dict.Insert("2", "2");
-            dict.Insert("1", "1");
-            dict.Insert("3", "3");
-            dict.Insert("4", "4");
-            dict.Insert("5", "5");
-            dict.Insert("6", "6");
-            dict.Insert("7", "7");
-            dict.Insert("8", "8");
-            dict.Insert("9", "9");
-            return dict;
-        }
+        private Dictionary<int, string> dict1;
+        private Dictionary<int, int> dict2;
 
-        private Dictionary SetupForBigDictionary()
+        private void SetupForFirstDictionary()
         {
-            var dictionary = new Dictionary(5);
-            var array = new string[]
-            { 
-                "01", "02", "03", "04",
-                "05", "06", "07", "08", 
-                "09", "10", "11", "12",
-                "13", "14", "15", "16",
-                "17", "18", "19", "20"
-            };
-            foreach (var str in array)
+            dict1 = new Dictionary<int, string>(5);
+            for (int i = 0; i < 50; i++)
             {
-                dictionary.Insert(str, str);
+                dict1.Add(i, i.ToString());
             }
-            return dictionary;
         }
 
-        [Test]
-        public void DictionaryShouldContainInsertedKeys()
+        private void SetupForSecondDictionary()
         {
-            var dict = Setup();
-            for (int i = 1; i < 10; i++)
+            dict2 = new Dictionary<int, int>(2);
+            for (int i = 0; i < 50; i++)
             {
-                Assert.IsTrue(dict.Contains(i.ToString()));
+                dict2.Add(i, i);
+            }
+        }
+        
+        [Test]
+        public void TestForInsert()
+        {
+            SetupForFirstDictionary();
+            SetupForSecondDictionary();
+            for (int i = 0; i < 50; i++)
+            {
+                var k = dict1[i];
+                Assert.AreEqual(dict1[i], i.ToString());
+                Assert.AreEqual(dict2[i], i);
             }
         }
 
         [Test]
-        public void GetValueTest()
+        public void TestForEach()
         {
-            var dict = Setup();
-            for (int i = 1; i < 10; i++)
+            SetupForSecondDictionary();
+            foreach (var pair in dict2)
             {
-                Assert.IsTrue(dict.GetValue(i.ToString()) == i.ToString()); 
+                Assert.AreEqual(pair.Key, pair.Value);
+                Assert.IsTrue(pair.Key < 50 && pair.Key >= 0);
             }
         }
 
         [Test]
-        public void ChangeValueShouldChangeValue()
+        public void TestForArrayOfKeys()
         {
-            var dict = Setup();
-            dict.ChangeValue("1", "2");
-            Assert.IsTrue(dict.GetValue("1") == "2");
-        }
-
-        [Test]
-        public void DeleteTestCaseWithMergingAndWithRoot()
-        {
-            var dict = Setup();
-            var array = new string[] { "1", "3", "4", "5", "6", "7", "8", "9" };
-            dict.Remove("2");
-            foreach ( var key in array)
+            SetupForFirstDictionary();
+            SetupForSecondDictionary();
+            var keys1 = dict1.Keys;
+            var keys2 = dict2.Keys;
+            Assert.AreEqual(50, keys1.Count);
+            Assert.AreEqual(50, keys2.Count);
+            for (int i = 0; i < 50; i++)
             {
-                Assert.IsTrue(dict.Contains(key));
-            }
-            Assert.IsFalse(dict.Contains("2"));
-        }
-
-        [Test]
-        public void DeleteTestCaseWithLeftRotation()
-        {
-            var dict = Setup();
-            var array = new string[] { "1", "3", "4", "6", "7", "8", "9" };
-            dict.Remove("2");
-            dict.Remove("5");
-            foreach (var key in array)
-            {
-                Assert.IsTrue(dict.Contains(key));
-            }
-            Assert.IsFalse(dict.Contains("5"));
-        }
-
-        [Test]
-        public void DeleteTestCaseWithDeleteFromLeaf()
-        {
-            var dict = Setup();
-            var array = new string[] { "1", "2", "3", "4", "5", "6", "7", "8" };
-            dict.Remove("9");
-            foreach (var key in array)
-            {
-                Assert.IsTrue(dict.Contains(key));
-            }
-            Assert.IsFalse(dict.Contains("9"));
-        }
-
-        [Test]
-        public void DeleteTestCaseWithInternal()
-        {   
-            var newDict = new Dictionary(2);
-            var array = new string[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" };
-            foreach (var key in array)
-            {   
-                newDict.Insert(key, key);
-            }
-            newDict.Remove("b");
-            foreach (var key in array)
-            {
-                if (key != "b")
-                {
-                    Assert.IsTrue(newDict.Contains(key));
-                }
-            }
-            Assert.IsFalse(newDict.Contains("b"));
-        }
-
-        [Test]
-        public void InsertShouldBeCorrectOnBigData()
-        {
-            var dict = SetupForBigDictionary();
-            var array = new string[]
-            {
-                "01", "02", "03", "04",
-                "05", "06", "07", "08",
-                "09", "10", "11", "12",
-                "13", "14", "15", "16",
-                "17", "18", "19", "20"
-            };
-            foreach (var str in array)
-            {
-                Assert.IsTrue(dict.Contains(str));
+                Assert.IsTrue(keys1.Contains(i) && keys2.Contains(i));
             }
         }
 
         [Test]
-        public void DeleteShouldBeCorrectOnBigData()
+        public void TestForRemove()
         {
-            var dict = SetupForBigDictionary();
-            dict.Remove("09");
-            dict.Remove("03");
-            dict.Remove("01");
-            var existArray = new string[]
+            SetupForFirstDictionary();
+            SetupForSecondDictionary();
+            for (int i = 0; i < 10; i++)
             {
-                "02", "04",
-                "05", "06", "07", "08",
-                "10", "11", "12",
-                "13", "14", "15", "16",
-                "17", "18", "19", "20"
-            };
-            var removedArray = new string[] { "09", "03", "01" };
-            foreach (var str in existArray)
-            {
-                Assert.IsTrue(dict.Contains(str));
+                dict2.Remove(i);
+                dict1.Remove(i);
             }
-            foreach (var str in removedArray)
+            for (int i = 10; i < 50; i++)
             {
-                Assert.IsFalse(dict.Contains(str));
+                Assert.IsTrue(dict1.Contains(new (i, i.ToString())));
+                Assert.IsTrue(dict2.Contains(new (i, i)));
             }
-        }
-
-        [Test]
-        public void GetValueShouldBeCorrectOnBigData()
-        {
-            var dict = SetupForBigDictionary();
-            var array = new string[]
-            {
-                "01", "02", "03", "04",
-                "05", "06", "07", "08",
-                "09", "10", "11", "12",
-                "13", "14", "15", "16",
-                "17", "18", "19", "20"
-            };
-            foreach (var key in array)
-            {
-                Assert.AreEqual(key, dict.GetValue(key));
-            }
-        }
-
-        [Test]
-        public void ChangeValueShouldBeCorrectOnBigData()
-        {
-            var dict = SetupForBigDictionary();
-            dict.ChangeValue("02", "draaain gaaaang");
-            Assert.AreEqual("draaain gaaaang", dict.GetValue("02"));
+            Assert.AreEqual(40, dict1.Count);
+            Assert.AreEqual(40, dict2.Count);
         }
     }
 }

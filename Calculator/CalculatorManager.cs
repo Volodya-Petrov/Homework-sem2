@@ -7,7 +7,7 @@ namespace Calculator
     /// </summary>
     public class CalculatorManager
     {
-        public string CurrentValue { get => currentValue; }
+        public string CurrentValue => currentValue;
 
         private string currentValue = "";
         private State state = 0;

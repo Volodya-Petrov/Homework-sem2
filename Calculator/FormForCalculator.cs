@@ -12,11 +12,29 @@ namespace Calculator
             manager = new CalculatorManager();
         }
 
-        CalculatorManager manager;
+        private CalculatorManager manager;
 
-        private void button_Click(object sender, EventArgs e)
+        private void ClickOnDigits(object sender, EventArgs e)
         {
-            manager.ButtonClick((sender as Button).Text);
+            manager.DigitClick((sender as Button).Text);
+            richTextBox1.Text = manager.CurrentValue;
+        }
+
+        private void ClickOnClear(object sender, EventArgs e)
+        {
+            manager.Clear();
+            richTextBox1.Text = manager.CurrentValue;
+        }
+
+        private void ClickOnOperator(object sender, EventArgs e)
+        {
+            manager.OperatorClick((sender as Button).Text);
+            richTextBox1.Text = manager.CurrentValue;
+        }
+
+        private void ClickOnEqual(object sender, EventArgs e)
+        {
+            manager.Equal();
             richTextBox1.Text = manager.CurrentValue;
         }
     }
